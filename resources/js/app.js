@@ -34,6 +34,39 @@ window.showControlTheme = {
     },
 };
 
+window.showControlEmojiPicker = (textareaId) => ({
+    open: false,
+    emojis: [
+        '👍', '👌', '🙏', '👏', '🙌', '💪', '✅', '❌',
+        '⚠️', '🚨', '🔥', '⭐', '🎯', '🕒', '📍', '📝',
+        '📞', '📧', '📎', '🎟️', '🎛️', '🎚️', '🎤', '🔊',
+        '🔇', '💡', '🔌', '🚚', '🚪', '🏟️', '🎪', '🚧',
+    ],
+    insert(emoji) {
+        const textarea = document.getElementById(textareaId);
+
+        if (!textarea) {
+            return;
+        }
+
+        const start = textarea.selectionStart ?? textarea.value.length;
+        const end = textarea.selectionEnd ?? textarea.value.length;
+        const current = textarea.value;
+        const spacerBefore = start > 0 && !/\s$/.test(current.slice(0, start)) ? ' ' : '';
+        const spacerAfter = end < current.length && !/^\s/.test(current.slice(end)) ? ' ' : '';
+        const nextValue = `${current.slice(0, start)}${spacerBefore}${emoji}${spacerAfter}${current.slice(end)}`;
+
+        textarea.value = nextValue;
+        textarea.dispatchEvent(new Event('input', { bubbles: true }));
+
+        const cursor = start + spacerBefore.length + emoji.length + spacerAfter.length;
+
+        textarea.focus();
+        textarea.setSelectionRange(cursor, cursor);
+        this.open = false;
+    },
+});
+
 window.Alpine = Alpine;
 
 document.addEventListener('alpine:init', () => {

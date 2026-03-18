@@ -62,25 +62,49 @@ class ShowMessageReadService
         );
     }
 
+    public function unreadMessageIdsForUser(Show $show, User $user): Collection
+    {
+        $read = ShowMessageRead::query()
+            ->where('show_id', $show->id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        return $this->unreadMessageIds($show, $read?->last_read_at, null);
+    }
+
+    public function unreadMessageIdsForSharedAccess(Show $show, SharedAccess $grant, array $sections): Collection
+    {
+        $read = ShowMessageRead::query()
+            ->where('show_id', $show->id)
+            ->where('shared_access_id', $grant->id)
+            ->first();
+
+        return $this->unreadMessageIds($show, $read?->last_read_at, $sections);
+    }
+
     private function buildUnreadCounts(Collection $shows, Collection $readsByShowId, ?array $sections): Collection
     {
         return $shows->mapWithKeys(function (Show $show) use ($readsByShowId, $sections): array {
-            $messages = $show->relationLoaded('sectionMessages')
-                ? $show->sectionMessages
-                : $show->sectionMessages()->get();
-
-            if ($sections !== null) {
-                $messages = $messages->whereIn('section', $sections)->values();
-            }
-
             $read = $readsByShowId->get($show->id);
-            $lastReadAt = $read?->last_read_at;
-
-            $count = $messages->filter(function ($message) use ($lastReadAt) {
-                return $lastReadAt === null || $message->created_at->gt($lastReadAt);
-            })->count();
+            $count = $this->unreadMessageIds($show, $read?->last_read_at, $sections)->count();
 
             return [$show->id => $count];
         });
+    }
+
+    private function unreadMessageIds(Show $show, mixed $lastReadAt, ?array $sections): Collection
+    {
+        $messages = $show->relationLoaded('sectionMessages')
+            ? $show->sectionMessages
+            : $show->sectionMessages()->get();
+
+        if ($sections !== null) {
+            $messages = $messages->whereIn('section', $sections)->values();
+        }
+
+        return $messages
+            ->filter(fn ($message) => $lastReadAt === null || $message->created_at->gt($lastReadAt))
+            ->pluck('id')
+            ->values();
     }
 }

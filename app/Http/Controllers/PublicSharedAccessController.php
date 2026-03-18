@@ -73,6 +73,11 @@ class PublicSharedAccessController extends Controller
         abort_unless($sharedAccessService->canViewShow($grant, $show), 404);
 
         $show->load(['tour', 'documents.uploader', 'sectionMessages.user', 'sectionMessages.sharedAccess']);
+        $chatSections = collect(array_keys(\App\Models\ShowSectionMessage::SECTIONS))
+            ->filter(fn (string $section) => $sharedAccessService->canAccessSectionMessages($grant, $section))
+            ->values()
+            ->all();
+        $unreadMessageIds = $showMessageReadService->unreadMessageIdsForSharedAccess($show, $grant, $chatSections);
         $showMessageReadService->markReadForSharedAccess($show, $grant);
         $permissions = $sharedAccessService->permissions($grant);
 
@@ -86,10 +91,8 @@ class PublicSharedAccessController extends Controller
             'permissions' => $permissions,
             'allowedDocumentTypes' => $sharedAccessService->allowedDocumentTypes($grant) ?? ShowDocument::TYPES,
             'sectionMessages' => $show->sectionMessages->groupBy('section'),
-            'chatSections' => collect(array_keys(\App\Models\ShowSectionMessage::SECTIONS))
-                ->filter(fn (string $section) => $sharedAccessService->canAccessSectionMessages($grant, $section))
-                ->values()
-                ->all(),
+            'chatSections' => $chatSections,
+            'unreadMessageIds' => $unreadMessageIds,
             'tours' => $grant->tour_id
                 ? collect()
                 : Tour::query()->ownedBy($grant->ownerId())->orderBy('name')->get(),

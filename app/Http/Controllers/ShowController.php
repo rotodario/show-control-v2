@@ -138,6 +138,7 @@ class ShowController extends Controller
         $this->ensureOwnedShow($show);
 
         $show->load(['tour', 'documents.uploader', 'activityLogs.actor', 'sectionMessages.user', 'sectionMessages.sharedAccess']);
+        $unreadMessageIds = $showMessageReadService->unreadMessageIdsForUser($show, request()->user());
         $showMessageReadService->markReadForUser($show, request()->user());
 
         return view('shows.show', [
@@ -145,6 +146,7 @@ class ShowController extends Controller
             'statusOptions' => Show::STATUS_OPTIONS,
             'alerts' => $showAlertService->alertsForShow($show),
             'sectionMessages' => $show->sectionMessages->groupBy('section'),
+            'unreadMessageIds' => $unreadMessageIds,
         ]);
     }
 
