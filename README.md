@@ -1,0 +1,177 @@
+# Show Control v2
+
+Aplicacion Laravel para gestion de giras, bolos, documentos, accesos compartidos, actividad, alertas, PDF, calendario y mensajeria interna por secciones.
+
+## Requisitos
+
+- PHP 8.1 o superior
+- MySQL o MariaDB
+- Extensiones PHP: `pdo`, `pdo_mysql`, `mbstring`, `openssl`, `json`
+- Carpeta `storage/` escribible
+- Carpeta `bootstrap/cache/` escribible
+
+## Nota de produccion
+
+Las dependencias de PDF y permisos forman parte del runtime de la aplicacion. En una instalacion de produccion deben estar presentes aunque se instale con optimizacion.
+
+## Instalacion rapida
+
+### Opcion 1. Instalador web
+
+Recomendada para hosting compartido tipo Arsys.
+
+1. Sube el proyecto al hosting.
+2. Crea una base de datos vacia desde el panel o `phpMyAdmin`.
+3. Asegura que el dominio apunta a la carpeta `public/`.
+4. Asegura permisos de escritura en:
+   - `storage/`
+   - `bootstrap/cache/`
+   - `.env` o, si no existe, en la raiz del proyecto para poder crearlo
+5. Abre `/install` en el navegador.
+6. Rellena:
+   - nombre de la aplicacion
+   - URL publica
+   - datos de la base de datos
+   - usuario administrador inicial
+7. El instalador:
+   - escribe `.env`
+   - ejecuta migraciones actuales del proyecto
+   - crea roles y permisos
+   - crea el primer usuario admin
+   - marca la aplicacion como instalada
+
+Cuando termina, entra directamente al dashboard.
+
+## Instalacion manual
+
+1. Copia `.env.example` a `.env`
+2. Ajusta al menos:
+
+```env
+APP_NAME="Show Control v2"
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://tu-dominio.com
+ASSET_URL=https://tu-dominio.com
+APP_PUBLIC_PATH=/ruta/real/a/public
+
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=tu_base_de_datos
+DB_USERNAME=tu_usuario
+DB_PASSWORD=tu_password
+```
+
+3. Instala dependencias:
+
+```bash
+composer install --no-dev --optimize-autoloader
+```
+
+4. Genera la clave:
+
+```bash
+php artisan key:generate
+```
+
+5. Ejecuta migraciones:
+
+```bash
+php artisan migrate --force
+```
+
+6. Crea roles y permisos:
+
+```bash
+php artisan db:seed --class=RolesAndPermissionsSeeder --force
+```
+
+7. Si usas archivos publicos:
+
+```bash
+php artisan storage:link
+```
+
+## Despliegue en hosting compartido
+
+Puntos importantes:
+
+- La raiz publica del dominio debe ser `public/`
+- Si el hosting no permite cambiarla, hay que preparar un `index.php` frontal en la raiz y no es la opcion ideal
+- Si lo montas en subcarpeta, por ejemplo `/sc/`, usa:
+  - proyecto completo en `html/sc_app`
+  - contenido de `public/` en `html/sc`
+  - `APP_URL=https://tu-dominio.com/sc`
+  - `ASSET_URL=https://tu-dominio.com/sc`
+  - `APP_PUBLIC_PATH=/ruta/real/html/sc`
+- Si no tienes SSH:
+  - sube tambien `vendor/`
+  - compila assets antes en local
+- Si tienes SSH:
+  - mejor ejecutar `composer install`, `php artisan migrate --force` y `php artisan storage:link`
+
+## Funcionamiento multiusuario
+
+- Cada usuario gestiona solo sus propias giras, bolos y tokens
+- Los usuarios nuevos se registran como `admin`
+- Ser `admin` no da acceso a los datos de otros usuarios, solo a su propio espacio
+
+## Mensajeria interna y alertas
+
+- Cada bolo dispone de chat persistente por seccion:
+  - iluminacion
+  - sonido
+  - espacio / venue
+  - notas generales
+- Los mensajes guardan autor y hora
+- En acceso compartido, cada token solo ve y usa el chat de las secciones visibles para su rol
+- El sistema calcula mensajes no leidos por usuario interno y por token compartido
+- Los listados muestran:
+  - alertas operativas
+  - mensajes nuevos no leidos
+- El dashboard muestra contadores globales de alertas y mensajes nuevos
+
+## Importacion desde calendario
+
+Desde `Giras > Importar Google Calendar`:
+
+- pegas una URL `ICS`
+- eliges rango de fechas
+- se previsualizan eventos
+- se importan bolos con formato recomendado `Gira - Lugar`
+
+La importacion:
+
+- crea la gira si no existe
+- evita duplicados por `UID` del evento ICS
+- guarda trazabilidad del origen
+
+## Tests
+
+```bash
+php artisan test
+```
+
+## Estado actual
+
+Implementado:
+
+- autenticacion
+- roles y permisos
+- giras
+- contactos de gira
+- documentos de gira
+- bolos
+- documentos de bolo
+- accesos compartidos por token
+- actividad
+- alertas
+- PDF
+- calendario/agenda
+- dark mode
+- importacion por ICS
+- instalador web
+- chat persistente por seccion en bolos
+- mensajes no leidos por usuario y por token compartido
+- contadores de alertas y mensajes nuevos en dashboard y listados

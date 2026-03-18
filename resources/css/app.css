@@ -1,0 +1,67 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    .dark body {
+        @apply bg-slate-950 text-slate-100;
+    }
+
+    .dark .bg-white,
+    .dark .bg-white\/80,
+    .dark .bg-white\/90 {
+        background-color: rgb(15 23 42 / 0.94);
+    }
+
+    .dark .bg-slate-50,
+    .dark .bg-slate-50\/70,
+    .dark .bg-slate-50\/80,
+    .dark .bg-slate-100 {
+        background-color: rgb(30 41 59 / 0.92);
+    }
+
+    .dark .border-white\/70,
+    .dark .border-slate-100,
+    .dark .border-slate-200,
+    .dark .border-slate-300 {
+        border-color: rgb(51 65 85 / 1);
+    }
+
+    .dark .text-slate-400 {
+        color: rgb(148 163 184 / 1);
+    }
+
+    .dark .text-slate-500,
+    .dark .text-slate-600 {
+        color: rgb(148 163 184 / 1);
+    }
+
+    .dark .text-slate-700,
+    .dark .text-slate-800,
+    .dark .text-slate-900,
+    .dark .text-gray-900,
+    .dark .text-gray-800 {
+        color: rgb(226 232 240 / 1);
+    }
+
+    .dark .hover\:bg-slate-50:hover,
+    .dark .hover\:bg-slate-100:hover,
+    .dark .hover\:bg-sky-50\/40:hover {
+        background-color: rgb(30 41 59 / 1);
+    }
+
+    .dark .bg-\[radial-gradient\(circle_at_top\,_rgba\(14\,165\,233\,0\.12\)\,_transparent_35\%\)\,linear-gradient\(180deg\,_\#f8fafc_0\%\,_\#eef2ff_100\%\)\] {
+        background-image: radial-gradient(circle at top, rgba(56, 189, 248, 0.12), transparent 32%), linear-gradient(180deg, #020617 0%, #0f172a 100%);
+    }
+
+    .dark input,
+    .dark select,
+    .dark textarea {
+        @apply border-slate-700 bg-slate-900 text-slate-100;
+    }
+
+    .dark input::placeholder,
+    .dark textarea::placeholder {
+        color: rgb(100 116 139 / 1);
+    }
+}
