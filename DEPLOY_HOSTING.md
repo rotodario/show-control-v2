@@ -36,6 +36,10 @@ APP_DEBUG=false
 APP_URL=https://tu-dominio.com/sc
 ASSET_URL=https://tu-dominio.com/sc
 APP_PUBLIC_PATH=/ruta/real/html/sc
+ADMIN_NAME="Super Admin"
+ADMIN_EMAIL=admin@tu-dominio.com
+ADMIN_PASSWORD=una_password_segura
+MAINTENANCE_RUN_TOKEN=token_largo_y_privado
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -54,6 +58,12 @@ php artisan migrate --force
 php artisan optimize:clear
 php artisan storage:link
 ```
+
+Si no tienes SSH:
+
+- sube un runner temporal protegido por `MAINTENANCE_RUN_TOKEN`
+- ejecutalo por URL
+- borralo al terminar
 
 ## Flujo para cambios pequenos
 
@@ -74,12 +84,12 @@ Si cambias dependencias:
 Si cambias base de datos:
 
 - subir migraciones nuevas a `html/sc_app/database/migrations/`
-- ejecutar `php artisan migrate --force`
+- ejecutar `php artisan migrate --force` o el runner web equivalente
 
 Si cambias logica de vistas, contadores, chats o permisos:
 
 - subir archivos modificados de `app/` y `resources/`
-- ejecutar `php artisan optimize:clear`
+- ejecutar `php artisan optimize:clear` o el runner web equivalente
 
 ## No subir normalmente
 
@@ -96,6 +106,8 @@ Si subes scripts temporales para mantenimiento o migraciones:
 
 - usarlos una sola vez
 - borrarlos despues del proceso
+- no dejar credenciales o tokens por defecto
+- no dejar `ADMIN_PASSWORD` debil en produccion
 
 ## Validacion final
 

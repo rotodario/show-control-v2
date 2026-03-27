@@ -6,6 +6,7 @@ use App\Http\Requests\StoreShowRequest;
 use App\Http\Requests\UpdateShowRequest;
 use App\Models\Show;
 use App\Models\Tour;
+use App\Models\UserPdfSetting;
 use App\Support\ActivityLogger;
 use App\Support\ShowAlertService;
 use App\Support\ShowMessageReadService;
@@ -36,7 +37,7 @@ class ShowController extends Controller
             'tours' => Tour::ownedBy($userId)->orderBy('name')->get(),
             'selectedTourId' => $tourId,
             'statusOptions' => Show::STATUS_OPTIONS,
-            'showAlerts' => $showAlertService->alertsForCollection($shows->getCollection()),
+            'showAlerts' => $showAlertService->alertsForCollection($shows->getCollection(), $request->user()),
             'unreadMessageCounts' => $showMessageReadService->unreadCountsForUser($shows->getCollection(), $request->user()),
         ]);
     }
@@ -63,7 +64,7 @@ class ShowController extends Controller
             ->get();
 
         $showsByDate = $monthShows->groupBy(fn (Show $show) => $show->date->toDateString());
-        $showAlerts = $showAlertService->alertsForCollection($monthShows);
+        $showAlerts = $showAlertService->alertsForCollection($monthShows, $request->user());
 
         $calendarDays = collect();
         $cursor = $calendarStart->copy();
@@ -144,7 +145,7 @@ class ShowController extends Controller
         return view('shows.show', [
             'show' => $show,
             'statusOptions' => Show::STATUS_OPTIONS,
-            'alerts' => $showAlertService->alertsForShow($show),
+            'alerts' => $showAlertService->alertsForShow($show, user: request()->user()),
             'sectionMessages' => $show->sectionMessages->groupBy('section'),
             'unreadMessageIds' => $unreadMessageIds,
         ]);
@@ -160,7 +161,8 @@ class ShowController extends Controller
         $pdf = Pdf::loadView('shows.pdf.roadmap', [
             'show' => $show,
             'statusOptions' => Show::STATUS_OPTIONS,
-            'alerts' => $showAlertService->alertsForShow($show),
+            'alerts' => $showAlertService->alertsForShow($show, user: $request->user()),
+            'pdfSettings' => $request->user()?->pdfSettings ?? new UserPdfSetting(),
         ])->setPaper('a4');
 
         $filename = sprintf(

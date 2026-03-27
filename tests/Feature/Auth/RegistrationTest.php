@@ -34,7 +34,9 @@ class RegistrationTest extends TestCase
 
         $this->assertNotNull($user);
         $this->assertTrue($user->hasRole('admin'));
+        $this->assertFalse($user->hasRole('super_admin'));
         $this->assertTrue($user->can('manage tours'));
         $this->assertTrue($user->can('manage shows'));
+        $this->assertFalse($user->can('manage platform users'));
     }
 }

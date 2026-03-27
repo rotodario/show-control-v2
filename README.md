@@ -32,12 +32,13 @@ Recomendada para hosting compartido tipo Arsys.
    - nombre de la aplicacion
    - URL publica
    - datos de la base de datos
-   - usuario administrador inicial
+   - usuario super admin inicial
 7. El instalador:
    - escribe `.env`
    - ejecuta migraciones actuales del proyecto
    - crea roles y permisos
-   - crea el primer usuario admin
+   - configura `ADMIN_NAME`, `ADMIN_EMAIL` y `ADMIN_PASSWORD`
+   - crea el primer usuario `super_admin`
    - marca la aplicacion como instalada
 
 Cuando termina, entra directamente al dashboard.
@@ -54,6 +55,9 @@ APP_DEBUG=false
 APP_URL=https://tu-dominio.com
 ASSET_URL=https://tu-dominio.com
 APP_PUBLIC_PATH=/ruta/real/a/public
+ADMIN_NAME="Super Admin"
+ADMIN_EMAIL=admin@tu-dominio.com
+ADMIN_PASSWORD=una_password_segura
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -87,7 +91,12 @@ php artisan migrate --force
 php artisan db:seed --class=RolesAndPermissionsSeeder --force
 ```
 
-7. Si usas archivos publicos:
+7. Crea o verifica el super admin inicial:
+
+- si has definido `ADMIN_NAME`, `ADMIN_EMAIL` y `ADMIN_PASSWORD`, el seeder crea ese `super_admin`
+- si no defines esas variables en produccion, el seeder no crea ningun usuario bootstrap
+
+8. Si usas archivos publicos:
 
 ```bash
 php artisan storage:link
@@ -108,6 +117,7 @@ Puntos importantes:
 - Si no tienes SSH:
   - sube tambien `vendor/`
   - compila assets antes en local
+  - usa un runner temporal protegido por `MAINTENANCE_RUN_TOKEN` para `migrate` y `optimize:clear`
 - Si tienes SSH:
   - mejor ejecutar `composer install`, `php artisan migrate --force` y `php artisan storage:link`
 
@@ -115,7 +125,9 @@ Puntos importantes:
 
 - Cada usuario gestiona solo sus propias giras, bolos y tokens
 - Los usuarios nuevos se registran como `admin`
+- El primer usuario creado por el instalador es `super_admin`
 - Ser `admin` no da acceso a los datos de otros usuarios, solo a su propio espacio
+- `super_admin` accede a `Plataforma > Usuarios` para gestionar cuentas globales
 
 ## Mensajeria interna y alertas
 
@@ -175,3 +187,6 @@ Implementado:
 - chat persistente por seccion en bolos
 - mensajes no leidos por usuario y por token compartido
 - contadores de alertas y mensajes nuevos en dashboard y listados
+- `Cuenta > Alertas` con persistencia y efecto real en dashboard y listados
+- `Cuenta > PDF y branding` con persistencia y efecto real en roadmap PDF
+- `Plataforma > Usuarios` con cambio de rol global y activacion/desactivacion

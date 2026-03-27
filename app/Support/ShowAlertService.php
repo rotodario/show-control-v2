@@ -3,12 +3,14 @@
 namespace App\Support;
 
 use App\Models\Show;
+use App\Models\User;
+use App\Models\UserAlertSetting;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Collection;
 
 class ShowAlertService
 {
-    public function alertsForShow(Show $show, ?CarbonInterface $today = null): array
+    public function alertsForShow(Show $show, ?CarbonInterface $today = null, ?User $user = null): array
     {
         $today ??= now()->startOfDay();
         $showDate = $show->date?->copy()->startOfDay();
@@ -24,8 +26,9 @@ class ShowAlertService
         }
 
         $alerts = [];
+        $settings = $this->resolveSettings($show, $user);
 
-        if ($daysUntil <= 90 && ! $this->hasCoreInfo($show)) {
+        if ($settings->core_info_enabled && $daysUntil <= $settings->core_info_days && ! $this->hasCoreInfo($show)) {
             $alerts[] = [
                 'key' => 'missing_core_info',
                 'severity' => 'warning',
@@ -34,7 +37,7 @@ class ShowAlertService
             ];
         }
 
-        if ($daysUntil <= 30 && ! in_array($show->status, ['confirmed', 'closed'], true)) {
+        if ($settings->status_enabled && $daysUntil <= $settings->status_days && ! in_array($show->status, ['confirmed', 'closed'], true)) {
             $alerts[] = [
                 'key' => 'status_not_ready',
                 'severity' => 'danger',
@@ -43,7 +46,7 @@ class ShowAlertService
             ];
         }
 
-        if ($daysUntil <= 7) {
+        if ($settings->validations_enabled && $daysUntil <= $settings->validations_days) {
             $missingValidations = $this->missingValidations($show);
 
             if ($missingValidations !== []) {
@@ -59,10 +62,10 @@ class ShowAlertService
         return $alerts;
     }
 
-    public function alertsForCollection(iterable $shows): Collection
+    public function alertsForCollection(iterable $shows, ?User $user = null): Collection
     {
-        return collect($shows)->mapWithKeys(function (Show $show): array {
-            return [$show->id => $this->alertsForShow($show)];
+        return collect($shows)->mapWithKeys(function (Show $show) use ($user): array {
+            return [$show->id => $this->alertsForShow($show, user: $user)];
         });
     }
 
@@ -110,5 +113,14 @@ class ShowAlertService
         }
 
         return $missing;
+    }
+
+    private function resolveSettings(Show $show, ?User $user = null): UserAlertSetting
+    {
+        $owner = $user
+            ?? $show->owner
+            ?? ($show->owner_id ? User::query()->with('alertSettings')->find($show->owner_id) : null);
+
+        return $owner?->alertSettings ?? new UserAlertSetting();
     }
 }

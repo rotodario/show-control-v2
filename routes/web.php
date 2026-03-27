@@ -3,6 +3,8 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoogleCalendarImportController;
 use App\Http\Controllers\InstallController;
+use App\Http\Controllers\AccountSettingsController;
+use App\Http\Controllers\PlatformUserController;
 use App\Http\Controllers\PublicSharedAccessController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShowController;
@@ -38,6 +40,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    Route::redirect('/account', '/account/profile')->name('account.index');
+    Route::get('/account/profile', [AccountSettingsController::class, 'profile'])->name('account.profile');
+
+    Route::middleware('permission:manage account settings')->group(function () {
+        Route::get('/account/alerts', [AccountSettingsController::class, 'alerts'])->name('account.alerts');
+        Route::put('/account/alerts', [AccountSettingsController::class, 'updateAlerts'])->name('account.alerts.update');
+        Route::get('/account/pdf', [AccountSettingsController::class, 'pdf'])->name('account.pdf');
+        Route::put('/account/pdf', [AccountSettingsController::class, 'updatePdf'])->name('account.pdf.update');
+        Route::get('/account/preferences', [AccountSettingsController::class, 'preferences'])->name('account.preferences');
+    });
 
     Route::middleware('permission:manage tours')->group(function () {
         Route::resource('tours', TourController::class);
@@ -72,6 +84,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/shared-accesses', [SharedAccessController::class, 'index'])->name('shared-accesses.index');
         Route::post('/shared-accesses', [SharedAccessController::class, 'store'])->name('shared-accesses.store');
         Route::delete('/shared-accesses/{sharedAccess}', [SharedAccessController::class, 'destroy'])->name('shared-accesses.destroy');
+    });
+
+    Route::middleware('permission:manage platform users')->group(function () {
+        Route::get('/platform/users', [PlatformUserController::class, 'index'])->name('platform.users.index');
+        Route::put('/platform/users/{user}', [PlatformUserController::class, 'update'])->name('platform.users.update');
     });
 });
 

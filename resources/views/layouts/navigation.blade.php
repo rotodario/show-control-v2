@@ -32,6 +32,14 @@
                             Accesos
                         </x-nav-link>
                     @endcan
+                    <x-nav-link :href="route('account.profile')" :active="request()->routeIs('account.*', 'profile.*')">
+                        Cuenta
+                    </x-nav-link>
+                    @can('manage platform users')
+                        <x-nav-link :href="route('platform.users.index')" :active="request()->routeIs('platform.users.*')">
+                            Plataforma
+                        </x-nav-link>
+                    @endcan
                 </div>
             </div>
 
@@ -69,8 +77,8 @@
                             </span>
                         </button>
 
-                        <x-dropdown-link :href="route('profile.edit')">
-                            Perfil
+                        <x-dropdown-link :href="route('account.profile')">
+                            Cuenta
                         </x-dropdown-link>
 
                         <form method="POST" action="{{ route('logout') }}">
@@ -117,6 +125,11 @@
                     Accesos
                 </x-responsive-nav-link>
             @endcan
+            @can('manage platform users')
+                <x-responsive-nav-link :href="route('platform.users.index')" :active="request()->routeIs('platform.users.*')">
+                    Plataforma
+                </x-responsive-nav-link>
+            @endcan
             <button
                 type="button"
                 x-data
@@ -130,8 +143,8 @@
                     </span>
                 </span>
             </button>
-            <x-responsive-nav-link :href="route('profile.edit')">
-                Perfil
+            <x-responsive-nav-link :href="route('account.profile')" :active="request()->routeIs('account.*', 'profile.*')">
+                Cuenta
             </x-responsive-nav-link>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf

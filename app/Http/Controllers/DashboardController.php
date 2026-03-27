@@ -24,7 +24,7 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
-        $allShowAlerts = $showAlertService->alertsForCollection($allShows);
+        $allShowAlerts = $showAlertService->alertsForCollection($allShows, auth()->user());
         $allUnreadMessageCounts = $showMessageReadService->unreadCountsForUser($allShows, auth()->user());
 
         return view('dashboard', [
@@ -41,7 +41,7 @@ class DashboardController extends Controller
                 ->take(6)
                 ->get(),
             'upcomingShows' => $upcomingShows,
-            'showAlerts' => $showAlertService->alertsForCollection($upcomingShows),
+            'showAlerts' => $showAlertService->alertsForCollection($upcomingShows, auth()->user()),
             'unreadMessageCounts' => $showMessageReadService->unreadCountsForUser($upcomingShows, auth()->user()),
         ]);
     }

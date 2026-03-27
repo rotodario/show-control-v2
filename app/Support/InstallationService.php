@@ -58,6 +58,9 @@ class InstallationService
             'APP_URL' => $data['app_url'],
             'APP_PUBLIC_PATH' => $this->resolvePublicPath(),
             'APP_KEY' => $appKey,
+            'ADMIN_NAME' => $data['admin_name'],
+            'ADMIN_EMAIL' => $data['admin_email'],
+            'ADMIN_PASSWORD' => $data['admin_password'],
             'DB_CONNECTION' => 'mysql',
             'DB_HOST' => $data['db_host'],
             'DB_PORT' => $data['db_port'],
@@ -86,9 +89,10 @@ class InstallationService
             'name' => $data['admin_name'],
             'password' => Hash::make($data['admin_password']),
             'email_verified_at' => now(),
+            'is_active' => true,
         ])->save();
 
-        $user->syncRoles(['admin']);
+        $user->syncRoles(['super_admin']);
 
         $this->markInstalled();
     }

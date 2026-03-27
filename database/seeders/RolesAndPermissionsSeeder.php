@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -15,14 +16,26 @@ class RolesAndPermissionsSeeder extends Seeder
     {
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $permissions = [
+        $accountPermissions = [
             'view dashboard',
             'manage tours',
             'manage shows',
             'manage access',
+            'manage account settings',
             'view activity',
             'export show pdf',
             'view calendar',
+        ];
+
+        $platformPermissions = [
+            'manage platform users',
+            'manage platform settings',
+            'view platform audit',
+        ];
+
+        $permissions = [
+            ...$accountPermissions,
+            ...$platformPermissions,
         ];
 
         foreach ($permissions as $permission) {
@@ -30,8 +43,9 @@ class RolesAndPermissionsSeeder extends Seeder
         }
 
         $roles = [
-            'admin' => $permissions,
-            'project_manager' => $permissions,
+            'admin' => $accountPermissions,
+            'super_admin' => $permissions,
+            'project_manager' => $accountPermissions,
             'lighting' => ['view dashboard', 'view calendar'],
             'sound' => ['view dashboard', 'view calendar'],
             'stage_manager' => ['view dashboard', 'view calendar'],
@@ -42,15 +56,26 @@ class RolesAndPermissionsSeeder extends Seeder
             $role->syncPermissions($rolePermissions);
         }
 
+        $configuredAdminEmail = env('ADMIN_EMAIL');
+        $shouldCreateBootstrapAdmin = filled($configuredAdminEmail) || app()->environment(['local', 'testing']);
+
+        if (! $shouldCreateBootstrapAdmin) {
+            return;
+        }
+
+        $adminEmail = $configuredAdminEmail ?: 'admin@showcontrol.test';
+        $adminPassword = env('ADMIN_PASSWORD') ?: (app()->environment('testing') ? 'password' : Str::password(32));
+
         $admin = User::firstOrCreate(
-            ['email' => env('ADMIN_EMAIL', 'admin@showcontrol.test')],
+            ['email' => $adminEmail],
             [
                 'name' => env('ADMIN_NAME', 'Admin'),
-                'password' => Hash::make(env('ADMIN_PASSWORD', 'password')),
+                'password' => Hash::make($adminPassword),
                 'email_verified_at' => now(),
+                'is_active' => true,
             ]
         );
 
-        $admin->syncRoles(['admin']);
+        $admin->syncRoles(['super_admin']);
     }
 }

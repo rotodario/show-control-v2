@@ -7,6 +7,7 @@ use App\Models\ShowMessageRead;
 use App\Models\ShowSectionMessage;
 use App\Models\Tour;
 use App\Models\User;
+use App\Models\UserAlertSetting;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
@@ -252,6 +253,36 @@ class ShowManagementTest extends TestCase
         $response->assertOk();
         $response->assertSee('3 alertas');
         $response->assertSee('1 mensajes nuevos');
+    }
+
+    public function test_show_index_respects_user_alert_settings(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+
+        UserAlertSetting::create([
+            'user_id' => $user->id,
+            'core_info_enabled' => false,
+            'status_enabled' => false,
+            'validations_enabled' => true,
+            'validations_days' => 7,
+        ]);
+
+        Show::create([
+            'owner_id' => $user->id,
+            'date' => now()->addDays(5)->toDateString(),
+            'city' => 'Madrid',
+            'name' => 'Bolo con ajustes',
+            'status' => 'tentative',
+        ]);
+
+        $response = $this->actingAs($user)->get(route('shows.index'));
+
+        $response->assertOk();
+        $response->assertSee('1 alertas');
+        $response->assertDontSee('3 alertas');
     }
 
     public function test_admin_cannot_open_other_users_show(): void

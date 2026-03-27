@@ -2,7 +2,13 @@
 <html lang="es">
     <head>
         <meta charset="utf-8">
-        <title>Hoja de ruta · {{ $show->name }}</title>
+        <title>Hoja de ruta - {{ $show->name }}</title>
+        @php
+            $primaryColor = $pdfSettings->primary_color ?: '#0f172a';
+            $brandName = $pdfSettings->brand_name ?: ($show->tour?->name ?: 'Show Control');
+            $headerText = $pdfSettings->header_text;
+            $footerText = $pdfSettings->footer_text;
+        @endphp
         <style>
             body {
                 font-family: DejaVu Sans, sans-serif;
@@ -16,7 +22,7 @@
             }
 
             .header {
-                border-bottom: 2px solid #e2e8f0;
+                border-bottom: 2px solid {{ $primaryColor }}33;
                 padding-bottom: 18px;
                 margin-bottom: 24px;
             }
@@ -45,8 +51,9 @@
                 font-size: 10px;
                 text-transform: uppercase;
                 letter-spacing: 2px;
-                color: #64748b;
+                color: {{ $primaryColor }};
                 margin-bottom: 8px;
+                font-weight: bold;
             }
 
             h1 {
@@ -64,8 +71,8 @@
                 display: inline-block;
                 padding: 4px 10px;
                 border-radius: 999px;
-                background: #e2e8f0;
-                color: #334155;
+                background: {{ $primaryColor }}22;
+                color: {{ $primaryColor }};
                 font-size: 10px;
                 font-weight: bold;
                 margin-right: 6px;
@@ -106,7 +113,7 @@
                 font-size: 14px;
                 text-transform: uppercase;
                 letter-spacing: 1px;
-                color: #0f172a;
+                color: {{ $primaryColor }};
                 margin: 0 0 12px;
                 padding-bottom: 8px;
                 border-bottom: 1px solid #e2e8f0;
@@ -206,10 +213,14 @@
                     <tr>
                         <td class="header-main">
                             <div class="eyebrow">Hoja de ruta</div>
+                            <div style="font-size: 11px; color: #334155; margin-bottom: 8px; font-weight: bold;">{{ $brandName }}</div>
                             <h1>{{ $show->name }}</h1>
                             <div class="subtitle">
-                                {{ $show->date->format('d/m/Y') }} · {{ $show->city }} · {{ $show->venue ?: 'Venue pendiente' }}
+                                {{ $show->date->format('d/m/Y') }} - {{ $show->city }} - {{ $show->venue ?: 'Venue pendiente' }}
                             </div>
+                            @if ($headerText)
+                                <div style="margin-top: 10px; color: #334155; font-size: 11px;">{{ $headerText }}</div>
+                            @endif
                             <div style="margin-top: 12px;">
                                 <span class="badge">{{ $statusOptions[$show->status] ?? $show->status }}</span>
                                 <span class="badge">{{ $show->tour?->name ?: 'Sin gira' }}</span>
@@ -294,7 +305,7 @@
                 </table>
             </div>
 
-@if ($show->tour && $show->tour->contacts->isNotEmpty())
+            @if ($show->tour && $show->tour->contacts->isNotEmpty())
                 <div class="section">
                     <h2>Contactos de gira</h2>
                     @foreach ($show->tour->contacts as $contact)
@@ -311,7 +322,12 @@
             @endif
 
             <div class="section muted" style="margin-top: 28px;">
-                Generado el {{ now()->format('d/m/Y H:i') }}
+                @if ($footerText)
+                    <div style="margin-bottom: 6px;">{{ $footerText }}</div>
+                @endif
+                @if ($pdfSettings->show_generated_at)
+                    <div>Generado el {{ now()->format('d/m/Y H:i') }}</div>
+                @endif
             </div>
         </div>
     </body>

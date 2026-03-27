@@ -24,6 +24,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'is_active',
     ];
 
     /**
@@ -44,6 +45,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'is_active' => 'boolean',
     ];
 
     public function uploadedTourDocuments(): HasMany
@@ -64,6 +66,16 @@ class User extends Authenticatable
     public function googleCalendarConnection(): HasOne
     {
         return $this->hasOne(GoogleCalendarConnection::class);
+    }
+
+    public function alertSettings(): HasOne
+    {
+        return $this->hasOne(UserAlertSetting::class);
+    }
+
+    public function pdfSettings(): HasOne
+    {
+        return $this->hasOne(UserPdfSetting::class);
     }
 
     public function uploadedShowDocuments(): HasMany

@@ -4,7 +4,7 @@
             <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Instalacion</p>
             <h1 class="text-3xl font-semibold text-slate-900">Configurar Show Control v2</h1>
             <p class="max-w-3xl text-sm text-slate-600">
-                Crea la conexion con la base de datos, instala la version actual completa del proyecto y genera el primer usuario administrador.
+                Crea la conexion con la base de datos, instala la version actual completa del proyecto y genera el primer super admin de la plataforma.
             </p>
         </div>
 
@@ -37,7 +37,7 @@
                 @endif
 
                 <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                    El instalador aplicara todas las migraciones actuales y dejara listas las funciones de bolos, accesos compartidos, alertas, chat interno y mensajes no leidos.
+                    El instalador aplicara todas las migraciones actuales, configurara el bootstrap seguro de super admin y dejara listas las funciones de bolos, accesos compartidos, alertas, chat interno, PDF y mensajes no leidos.
                 </div>
 
                 <form method="POST" action="{{ route('install.store') }}" class="mt-6 space-y-6">
@@ -81,15 +81,15 @@
 
                     <div class="grid gap-4 sm:grid-cols-2">
                         <div>
-                            <x-input-label for="admin_name" value="Nombre admin" />
+                            <x-input-label for="admin_name" value="Nombre super admin" />
                             <x-text-input id="admin_name" name="admin_name" type="text" class="mt-1 block w-full" :value="old('admin_name', 'Admin')" />
                         </div>
                         <div>
-                            <x-input-label for="admin_email" value="Email admin" />
+                            <x-input-label for="admin_email" value="Email super admin" />
                             <x-text-input id="admin_email" name="admin_email" type="email" class="mt-1 block w-full" :value="old('admin_email')" />
                         </div>
                         <div>
-                            <x-input-label for="admin_password" value="Password admin" />
+                            <x-input-label for="admin_password" value="Password super admin" />
                             <x-text-input id="admin_password" name="admin_password" type="password" class="mt-1 block w-full" />
                         </div>
                         <div>
