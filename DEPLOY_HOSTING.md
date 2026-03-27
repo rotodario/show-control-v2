@@ -91,6 +91,11 @@ Si cambias logica de vistas, contadores, chats o permisos:
 - subir archivos modificados de `app/` y `resources/`
 - ejecutar `php artisan optimize:clear` o el runner web equivalente
 
+Si cambias herramientas de plataforma o backups:
+
+- subir archivos modificados de `app/Http/Controllers/`, `app/Support/`, `app/Http/Requests/` y `resources/views/platform/`
+- ejecutar `php artisan optimize:clear` o el runner web equivalente
+
 ## No subir normalmente
 
 - `node_modules/`
@@ -123,3 +128,5 @@ Comprobar:
 - PDF abre
 - subida de documentos funciona
 - chat por secciones funciona
+- `Plataforma > Usuarios` carga y permite gestionar cuentas
+- `Plataforma > Herramientas` muestra chequeos, crea backup y lista backups

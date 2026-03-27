@@ -5,6 +5,7 @@ use App\Http\Controllers\GoogleCalendarImportController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\AccountSettingsController;
 use App\Http\Controllers\PlatformUserController;
+use App\Http\Controllers\PlatformToolController;
 use App\Http\Controllers\PublicSharedAccessController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShowController;
@@ -89,6 +90,13 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:manage platform users')->group(function () {
         Route::get('/platform/users', [PlatformUserController::class, 'index'])->name('platform.users.index');
         Route::put('/platform/users/{user}', [PlatformUserController::class, 'update'])->name('platform.users.update');
+    });
+
+    Route::middleware('permission:manage platform settings')->group(function () {
+        Route::get('/platform/tools', [PlatformToolController::class, 'index'])->name('platform.tools.index');
+        Route::post('/platform/tools/backup', [PlatformToolController::class, 'backup'])->name('platform.tools.backup');
+        Route::get('/platform/tools/backups/{filename}', [PlatformToolController::class, 'download'])->name('platform.tools.download');
+        Route::post('/platform/tools/restore', [PlatformToolController::class, 'restore'])->name('platform.tools.restore');
     });
 });
 

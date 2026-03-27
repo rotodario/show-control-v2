@@ -2,6 +2,8 @@
 
 Aplicacion Laravel para gestion de giras, bolos, documentos, accesos compartidos, actividad, alertas, PDF, calendario y mensajeria interna por secciones.
 
+Licencia: [MIT](LICENSE)
+
 ## Requisitos
 
 - PHP 8.1 o superior
@@ -190,3 +192,8 @@ Implementado:
 - `Cuenta > Alertas` con persistencia y efecto real en dashboard y listados
 - `Cuenta > PDF y branding` con persistencia y efecto real en roadmap PDF
 - `Plataforma > Usuarios` con cambio de rol global y activacion/desactivacion
+- `Plataforma > Herramientas` con chequeos de salud y backup/restauracion de base de datos
+
+## Licencia
+
+Distribuido bajo licencia MIT. Ver [LICENSE](LICENSE).

@@ -40,6 +40,12 @@
             <main>
                 {{ $slot }}
             </main>
+
+            <footer class="border-t border-white/70 bg-white/70 backdrop-blur transition-colors">
+                <div class="mx-auto max-w-7xl px-4 py-4 text-center text-xs text-slate-500 sm:px-6 lg:px-8">
+                    Show Control por Jose Osuna. Licencia MIT. &copy; {{ now()->year }}
+                </div>
+            </footer>
         </div>
     </body>
 </html>

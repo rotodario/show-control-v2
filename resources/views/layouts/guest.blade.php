@@ -27,7 +27,8 @@
         @endunless
     </head>
     <body class="font-sans text-gray-900 antialiased transition-colors">
-        <div class="min-h-screen flex flex-col items-center bg-gray-100 pt-6 transition-colors sm:justify-center sm:pt-0">
+        <div class="min-h-screen flex flex-col bg-gray-100 pt-6 transition-colors sm:pt-0">
+            <div class="flex flex-1 flex-col items-center justify-center px-4">
             <div>
                 <a href="/">
                     <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
@@ -37,6 +38,11 @@
             <div class="mt-6 w-full overflow-hidden bg-white px-6 py-4 shadow-md transition-colors sm:max-w-md sm:rounded-lg">
                 {{ $slot }}
             </div>
+            </div>
+
+            <footer class="px-4 py-4 text-center text-xs text-slate-500">
+                Show Control por Jose Osuna. Licencia MIT. &copy; {{ now()->year }}
+            </footer>
         </div>
     </body>
 </html>
