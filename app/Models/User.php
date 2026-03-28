@@ -83,6 +83,11 @@ class User extends Authenticatable
         return $this->hasOne(UserPreference::class);
     }
 
+    public function mailSettings(): HasOne
+    {
+        return $this->hasOne(UserMailSetting::class);
+    }
+
     public function uploadedShowDocuments(): HasMany
     {
         return $this->hasMany(ShowDocument::class, 'uploaded_by');

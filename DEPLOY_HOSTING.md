@@ -47,6 +47,15 @@ DB_PORT=3306
 DB_DATABASE=tu_base_de_datos
 DB_USERNAME=tu_usuario
 DB_PASSWORD=tu_password
+
+MAIL_MAILER=smtp
+MAIL_HOST=tu-servidor-smtp
+MAIL_PORT=465
+MAIL_USERNAME=tu-correo@tu-dominio.com
+MAIL_PASSWORD=tu_password_smtp
+MAIL_ENCRYPTION=ssl
+MAIL_FROM_ADDRESS=tu-correo@tu-dominio.com
+MAIL_FROM_NAME="Show Control"
 ```
 
 ## Comandos despues de subir
@@ -96,6 +105,18 @@ Si cambias herramientas de plataforma o backups:
 - subir archivos modificados de `app/Http/Controllers/`, `app/Support/`, `app/Http/Requests/` y `resources/views/platform/`
 - ejecutar `php artisan optimize:clear` o el runner web equivalente
 
+Si cambias correo operativo, correo global o plantillas email:
+
+- subir archivos modificados de `app/Mail/`, `app/Listeners/`, `app/Support/`, `app/Http/Controllers/`, `app/Http/Requests/`, `app/Models/`, `resources/views/account/`, `resources/views/platform/`, `resources/views/emails/` y `routes/`
+- si hay migraciones nuevas de correo, subirlas a `html/sc_app/database/migrations/`
+- ejecutar `php artisan migrate --force` y luego `php artisan optimize:clear` o el runner web equivalente
+
+Si cambias idioma o traducciones:
+
+- subir archivos modificados de `lang/`, `config/app.php`, `app/Http/Middleware/`, `app/Http/Kernel.php`, `app/Http/Controllers/`, `app/Http/Requests/`, `app/Models/` y las vistas afectadas
+- si hay migraciones nuevas de preferencias o ajustes de locale, subirlas a `html/sc_app/database/migrations/`
+- ejecutar `php artisan migrate --force` y luego `php artisan optimize:clear` o el runner web equivalente
+
 Si cambias logistica de ruta o transporte de bolos:
 
 - subir archivos modificados de `app/Support/`, `app/Http/Controllers/`, `app/Http/Requests/`, `app/Models/`, `resources/views/shows/` y `routes/`
@@ -137,4 +158,7 @@ Comprobar:
 - ficha de bolo calcula ruta por carretera y muestra el mapa embebido
 - modo `avion` muestra los datos manuales de vuelo
 - `Plataforma > Usuarios` carga y permite gestionar cuentas
+- `Plataforma > Correo` carga y puede enviar avisos globales si el SMTP esta bien configurado
+- `Plataforma > Ajustes` carga y el idioma por defecto cambia la UI compartida
 - `Plataforma > Herramientas` muestra chequeos, crea backup y lista backups
+- `Cuenta > Correo` carga y puede enviar `Hoja de ruta` y `Alerta operativa`

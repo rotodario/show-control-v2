@@ -41,7 +41,7 @@
             </div>
 
             <footer class="px-4 py-4 text-center text-xs text-slate-500">
-                Show Control por Jose Osuna. Licencia MIT. &copy; {{ now()->year }}
+                {{ __('ui.footer', ['year' => now()->year]) }}
             </footer>
         </div>
     </body>

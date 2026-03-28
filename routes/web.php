@@ -4,6 +4,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GoogleCalendarImportController;
 use App\Http\Controllers\InstallController;
 use App\Http\Controllers\AccountSettingsController;
+use App\Http\Controllers\PlatformMailController;
+use App\Http\Controllers\PlatformSettingsController;
 use App\Http\Controllers\PlatformUserController;
 use App\Http\Controllers\PlatformToolController;
 use App\Http\Controllers\PublicSharedAccessController;
@@ -51,6 +53,8 @@ Route::middleware('auth')->group(function () {
         Route::put('/account/pdf', [AccountSettingsController::class, 'updatePdf'])->name('account.pdf.update');
         Route::get('/account/preferences', [AccountSettingsController::class, 'preferences'])->name('account.preferences');
         Route::put('/account/preferences', [AccountSettingsController::class, 'updatePreferences'])->name('account.preferences.update');
+        Route::get('/account/mail', [AccountSettingsController::class, 'mail'])->name('account.mail');
+        Route::put('/account/mail', [AccountSettingsController::class, 'updateMail'])->name('account.mail.update');
     });
 
     Route::middleware('permission:manage tours')->group(function () {
@@ -74,6 +78,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/shows-calendar', [ShowController::class, 'calendar'])->name('shows.calendar');
         Route::resource('shows', ShowController::class);
         Route::put('/shows/{show}/preview-route', [ShowController::class, 'previewRoute'])->name('shows.preview-route');
+        Route::post('/shows/{show}/send-roadmap-mail', [ShowController::class, 'sendRoadmapMail'])->name('shows.send-roadmap-mail');
+        Route::post('/shows/{show}/send-alert-mail', [ShowController::class, 'sendAlertMail'])->name('shows.send-alert-mail');
         Route::get('/shows/{show}/pdf', [ShowController::class, 'pdf'])->name('shows.pdf');
         Route::post('/shows/{show}/documents', [ShowDocumentController::class, 'store'])->name('shows.documents.store');
         Route::post('/shows/{show}/section-messages', [ShowSectionMessageController::class, 'store'])->name('shows.section-messages.store');
@@ -95,6 +101,10 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('permission:manage platform settings')->group(function () {
+        Route::get('/platform/settings', [PlatformSettingsController::class, 'edit'])->name('platform.settings.edit');
+        Route::put('/platform/settings', [PlatformSettingsController::class, 'update'])->name('platform.settings.update');
+        Route::get('/platform/mail', [PlatformMailController::class, 'edit'])->name('platform.mail.edit');
+        Route::put('/platform/mail', [PlatformMailController::class, 'update'])->name('platform.mail.update');
         Route::get('/platform/tools', [PlatformToolController::class, 'index'])->name('platform.tools.index');
         Route::post('/platform/tools/backup', [PlatformToolController::class, 'backup'])->name('platform.tools.backup');
         Route::get('/platform/tools/backups/{filename}', [PlatformToolController::class, 'download'])->name('platform.tools.download');

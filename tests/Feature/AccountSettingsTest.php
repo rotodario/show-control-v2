@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\UserAlertSetting;
+use App\Models\UserMailSetting;
 use App\Models\UserPreference;
 use App\Models\UserPdfSetting;
 use App\Models\User;
@@ -37,6 +38,10 @@ class AccountSettingsTest extends TestCase
         $this->actingAs($user)->get(route('account.preferences'))
             ->assertOk()
             ->assertSee('Preferencias de cuenta');
+
+        $this->actingAs($user)->get(route('account.mail'))
+            ->assertOk()
+            ->assertSee('Correo operativo');
     }
 
     public function test_admin_can_update_preferences(): void
@@ -51,6 +56,7 @@ class AccountSettingsTest extends TestCase
             'default_travel_mode' => 'sleeper',
             'default_city' => 'Madrid',
             'default_travel_origin' => 'Calle Alcala 45, Madrid',
+            'ui_locale' => 'en',
         ]);
 
         $response->assertRedirect(route('account.preferences'));
@@ -61,6 +67,7 @@ class AccountSettingsTest extends TestCase
             'default_travel_mode' => 'sleeper',
             'default_city' => 'Madrid',
             'default_travel_origin' => 'Calle Alcala 45, Madrid',
+            'ui_locale' => 'en',
         ]);
     }
 
@@ -77,12 +84,14 @@ class AccountSettingsTest extends TestCase
             'default_travel_mode' => 'car',
             'default_city' => 'Barcelona',
             'default_travel_origin' => 'Sants, Barcelona',
+            'ui_locale' => 'en',
         ]);
 
         $this->actingAs($user)->get(route('account.preferences'))
             ->assertOk()
             ->assertSee('Barcelona')
-            ->assertSee('Sants, Barcelona');
+            ->assertSee('Sants, Barcelona')
+            ->assertSee('English');
     }
 
     public function test_admin_can_update_alert_settings(): void
@@ -189,6 +198,74 @@ class AccountSettingsTest extends TestCase
             ->assertSee('Pie PDF');
     }
 
+    public function test_admin_can_update_mail_settings(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+
+        $response = $this->actingAs($user)->put(route('account.mail.update'), [
+            'notifications_enabled' => '1',
+            'from_name' => 'Produccion Roto',
+            'reply_to_email' => 'reply@example.com',
+            'recipients' => "one@example.com\ntwo@example.com",
+            'cc_recipients' => 'cc@example.com',
+            'subject_template' => 'Aviso {{show_name}}',
+            'body_template' => 'Hola {{show_name}}',
+            'signature' => 'Equipo de produccion',
+            'alert_notifications_enabled' => '1',
+            'alert_recipients' => 'alerts@example.com',
+            'alert_cc_recipients' => 'alert-cc@example.com',
+            'alert_subject_template' => 'Alerta {{show_name}}',
+            'alert_body_template' => 'Alertas {{alert_count}}',
+        ]);
+
+        $response->assertRedirect(route('account.mail'));
+
+        $this->assertDatabaseHas('user_mail_settings', [
+            'user_id' => $user->id,
+            'notifications_enabled' => true,
+            'from_name' => 'Produccion Roto',
+            'reply_to_email' => 'reply@example.com',
+            'subject_template' => 'Aviso {{show_name}}',
+            'body_template' => 'Hola {{show_name}}',
+            'signature' => 'Equipo de produccion',
+            'alert_notifications_enabled' => true,
+            'alert_recipients' => 'alerts@example.com',
+            'alert_cc_recipients' => 'alert-cc@example.com',
+            'alert_subject_template' => 'Alerta {{show_name}}',
+            'alert_body_template' => 'Alertas {{alert_count}}',
+        ]);
+    }
+
+    public function test_mail_settings_page_uses_saved_values(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+
+        UserMailSetting::create([
+            'user_id' => $user->id,
+            'notifications_enabled' => true,
+            'from_name' => 'Produccion Roto',
+            'reply_to_email' => 'reply@example.com',
+            'recipients' => 'one@example.com, two@example.com',
+            'cc_recipients' => 'cc@example.com',
+            'subject_template' => 'Aviso {{show_name}}',
+            'body_template' => 'Hola {{show_name}}',
+            'signature' => 'Equipo de produccion',
+        ]);
+
+        $this->actingAs($user)->get(route('account.mail'))
+            ->assertOk()
+            ->assertSee('Produccion Roto')
+            ->assertSee('reply@example.com')
+            ->assertSee('one@example.com')
+            ->assertSee('Aviso {{show_name}}', false);
+    }
+
     public function test_account_index_redirects_to_profile(): void
     {
         $this->seed(RolesAndPermissionsSeeder::class);
@@ -213,6 +290,7 @@ class AccountSettingsTest extends TestCase
             'default_travel_mode' => 'sleeper',
             'default_city' => 'Sevilla',
             'default_travel_origin' => 'Base tecnica Sevilla',
+            'ui_locale' => 'en',
         ]);
 
         $this->actingAs($user)->get(route('shows.create'))
@@ -221,5 +299,26 @@ class AccountSettingsTest extends TestCase
             ->assertSee('Base tecnica Sevilla')
             ->assertSee('value="confirmed" selected', false)
             ->assertSee('value="sleeper" selected', false);
+    }
+
+    public function test_user_locale_preference_changes_shared_ui_language(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+
+        UserPreference::create([
+            'user_id' => $user->id,
+            'default_show_status' => 'confirmed',
+            'default_travel_mode' => 'van',
+            'ui_locale' => 'en',
+        ]);
+
+        $this->actingAs($user)->get(route('account.preferences'))
+            ->assertOk()
+            ->assertSee('Account')
+            ->assertSee('Profile')
+            ->assertSee('Preferences');
     }
 }

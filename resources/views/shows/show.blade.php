@@ -7,6 +7,18 @@
                 <p class="mt-1 text-sm text-slate-500">{{ $show->date->format('d/m/Y') }} · {{ $show->city }} · {{ $show->venue ?: 'Venue pendiente' }}</p>
             </div>
             <div class="flex flex-col gap-3 sm:flex-row">
+                <form method="POST" action="{{ route('shows.send-roadmap-mail', $show) }}">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center justify-center rounded-full border border-emerald-200 px-4 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50">
+                        Enviar hoja de ruta
+                    </button>
+                </form>
+                <form method="POST" action="{{ route('shows.send-alert-mail', $show) }}">
+                    @csrf
+                    <button type="submit" class="inline-flex items-center justify-center rounded-full border border-amber-200 px-4 py-2.5 text-sm font-semibold text-amber-700 transition hover:bg-amber-50">
+                        Enviar alerta
+                    </button>
+                </form>
                 <a href="{{ route('shows.pdf', $show) }}" target="_blank" class="inline-flex items-center justify-center rounded-full bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-500">
                     Abrir PDF
                 </a>

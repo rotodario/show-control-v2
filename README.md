@@ -67,6 +67,15 @@ DB_PORT=3306
 DB_DATABASE=tu_base_de_datos
 DB_USERNAME=tu_usuario
 DB_PASSWORD=tu_password
+
+MAIL_MAILER=smtp
+MAIL_HOST=tu-servidor-smtp
+MAIL_PORT=465
+MAIL_USERNAME=tu-correo@tu-dominio.com
+MAIL_PASSWORD=tu_password_smtp
+MAIL_ENCRYPTION=ssl
+MAIL_FROM_ADDRESS=tu-correo@tu-dominio.com
+MAIL_FROM_NAME="Show Control"
 ```
 
 3. Instala dependencias:
@@ -131,6 +140,22 @@ Puntos importantes:
 - Ser `admin` no da acceso a los datos de otros usuarios, solo a su propio espacio
 - `super_admin` accede a `Plataforma > Usuarios` para gestionar cuentas globales
 
+## Correo
+
+- El envio real usa el SMTP global configurado en `.env`
+- `Cuenta > Correo` permite configurar:
+  - `Hoja de ruta` externa con PDF adjunto
+  - `Alerta operativa` con detalle real de alertas del bolo
+- `Plataforma > Correo` permite configurar avisos globales como nuevos registros
+- El sistema no usa todavia un SMTP distinto por cuenta
+
+## Idioma de interfaz
+
+- La app ya soporta base de locale para `es` y `en`
+- `Plataforma > Ajustes` define el idioma por defecto global
+- `Cuenta > Preferencias` permite fijar un idioma propio por usuario
+- La traduccion se esta aplicando por bloques empezando por la UI compartida
+
 ## Mensajeria interna y alertas
 
 - Cada bolo dispone de chat persistente por seccion:
@@ -192,11 +217,15 @@ Implementado:
 - `Cuenta > Alertas` con persistencia y efecto real en dashboard y listados
 - `Cuenta > PDF y branding` con persistencia y efecto real en roadmap PDF
 - `Cuenta > Preferencias` con valores por defecto para nuevos bolos
+- `Cuenta > Correo` con `Hoja de ruta` externa y `Alerta operativa`
 - `Plataforma > Usuarios` con cambio de rol global y activacion/desactivacion
+- `Plataforma > Correo` para avisos globales de registro
+- `Plataforma > Ajustes` con idioma por defecto de plataforma
 - `Plataforma > Herramientas` con chequeos de salud y backup/restauracion de base de datos
 - logistica de viaje por bolo con origen configurable, modos `coche`, `furgo`, `sleeper` y `avion`
 - calculo de ruta por carretera en la ficha del bolo con mapa embebido, distancia, tiempo y enlace
 - datos manuales de vuelo para `avion` y resumen logistico de viaje en el PDF
+- infraestructura base de idioma `es/en` con traduccion inicial de UI compartida
 
 ## Licencia
 

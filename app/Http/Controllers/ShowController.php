@@ -6,17 +6,16 @@ use App\Http\Requests\StoreShowRequest;
 use App\Http\Requests\UpdateShowRequest;
 use App\Models\Show;
 use App\Models\Tour;
-use App\Models\UserPdfSetting;
 use App\Support\ActivityLogger;
 use App\Support\OpenStreetMapRouteService;
 use App\Support\ShowAlertService;
+use App\Support\ShowMailNotificationService;
 use App\Support\ShowMessageReadService;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\ShowRoadmapPdfService;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use Illuminate\Support\Facades\File;
 use Illuminate\View\View;
 
 class ShowController extends Controller
@@ -169,35 +168,72 @@ class ShowController extends Controller
         Show $show,
         Request $request,
         ShowAlertService $showAlertService,
-        OpenStreetMapRouteService $openStreetMapRouteService
+        OpenStreetMapRouteService $openStreetMapRouteService,
+        ShowRoadmapPdfService $showRoadmapPdfService
     ): Response
     {
         $this->ensureOwnedShow($show);
 
-        $show->load('tour.contacts');
-        $this->ensurePdfRuntimePaths();
         $travelRoute = $openStreetMapRouteService->routeForShow($show);
+        $alerts = $showAlertService->alertsForShow($show, user: $request->user());
 
-        $pdf = Pdf::loadView('shows.pdf.roadmap', [
-            'show' => $show,
-            'statusOptions' => Show::STATUS_OPTIONS,
-            'alerts' => $showAlertService->alertsForShow($show, user: $request->user()),
-            'pdfSettings' => $request->user()?->pdfSettings ?? new UserPdfSetting(),
-            'travelRoute' => $travelRoute,
-            'travelModeOptions' => Show::TRAVEL_MODE_OPTIONS,
-        ])->setPaper('a4');
+        return $showRoadmapPdfService->streamResponse(
+            $show,
+            $request->user(),
+            $alerts,
+            $travelRoute,
+            $request->string('disposition')->toString() === 'download'
+        );
+    }
 
-        $filename = sprintf(
-            'hoja-ruta-%s-%s.pdf',
-            str($show->date->format('Y-m-d'))->lower(),
-            str($show->name)->slug()
+    public function sendRoadmapMail(
+        Request $request,
+        Show $show,
+        OpenStreetMapRouteService $openStreetMapRouteService,
+        ShowMailNotificationService $showMailNotificationService,
+        ShowAlertService $showAlertService
+    ): RedirectResponse
+    {
+        $this->ensureOwnedShow($show);
+
+        $travelRoute = $openStreetMapRouteService->routeForShow($show);
+        $alerts = $showAlertService->alertsForShow($show, user: $request->user());
+
+        $sent = $showMailNotificationService->sendRoadmapForShow(
+            $show,
+            $request->user(),
+            $travelRoute,
+            $alerts,
         );
 
-        if ($request->string('disposition')->toString() === 'download') {
-            return $pdf->download($filename);
-        }
+        return redirect()
+            ->route('shows.show', $show)
+            ->with('status', $sent
+                ? 'Hoja de ruta enviada por mail a los destinatarios configurados.'
+                : 'No se ha enviado la hoja de ruta. Revisa Cuenta > Correo y completa los destinatarios.');
+    }
 
-        return $pdf->stream($filename);
+    public function sendAlertMail(
+        Request $request,
+        Show $show,
+        ShowMailNotificationService $showMailNotificationService,
+        ShowAlertService $showAlertService
+    ): RedirectResponse
+    {
+        $this->ensureOwnedShow($show);
+
+        $alerts = $showAlertService->alertsForShow($show, user: $request->user());
+        $sent = $showMailNotificationService->sendAlertForShow(
+            $show,
+            $request->user(),
+            $alerts,
+        );
+
+        return redirect()
+            ->route('shows.show', $show)
+            ->with('status', $sent
+                ? 'Alerta operativa enviada por mail.'
+                : 'No se ha enviado la alerta. Revisa Cuenta > Correo, los destinatarios de alertas o si este bolo tiene alertas activas.');
     }
 
     public function edit(Show $show): View
@@ -318,24 +354,5 @@ class ShowController extends Controller
     private function ensureOwnedShow(Show $show): void
     {
         abort_unless($show->owner_id === auth()->id(), 404);
-    }
-
-    private function ensurePdfRuntimePaths(): void
-    {
-        $fontPath = storage_path('framework/dompdf/fonts');
-        $tempPath = storage_path('framework/dompdf/tmp');
-
-        foreach ([$fontPath, $tempPath] as $path) {
-            if (! File::exists($path)) {
-                File::makeDirectory($path, 0755, true);
-            }
-        }
-
-        config([
-            'dompdf.public_path' => public_path(),
-            'dompdf.options.font_dir' => $fontPath,
-            'dompdf.options.font_cache' => $fontPath,
-            'dompdf.options.temp_dir' => $tempPath,
-        ]);
     }
 }

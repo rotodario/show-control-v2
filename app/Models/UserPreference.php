@@ -16,6 +16,7 @@ class UserPreference extends Model
         'default_travel_mode',
         'default_city',
         'default_travel_origin',
+        'ui_locale',
     ];
 
     public function user(): BelongsTo
