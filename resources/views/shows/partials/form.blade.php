@@ -1,6 +1,6 @@
 @csrf
 
-<div class="space-y-8">
+<div x-data="{ travelMode: '{{ old('travel_mode', $show->travel_mode ?: 'van') }}', calculatingRoute: false }" class="space-y-8">
     <div class="grid gap-4 lg:grid-cols-2">
         <div>
             <x-input-label for="name" value="Nombre del bolo" />
@@ -41,7 +41,122 @@
             <x-text-input id="venue" name="venue" type="text" class="mt-1 block w-full" :value="old('venue', $show->venue)" />
             <x-input-error class="mt-2" :messages="$errors->get('venue')" />
         </div>
+        <div class="lg:col-span-2">
+            <x-input-label for="travel_origin" value="Origen de viaje" />
+            <x-text-input id="travel_origin" name="travel_origin" type="text" class="mt-1 block w-full" :value="old('travel_origin', $show->travel_origin)" />
+            <p class="mt-2 text-sm text-slate-500">Direccion o punto de salida para calcular ruta, tiempo y mapa hacia el venue.</p>
+            <x-input-error class="mt-2" :messages="$errors->get('travel_origin')" />
+        </div>
+        <div class="lg:col-span-2">
+            <div class="grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                <div>
+                    <x-input-label for="travel_mode" value="Modo de viaje" />
+                    <select id="travel_mode" name="travel_mode" x-model="travelMode" class="mt-1 block w-full rounded-2xl border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500">
+                        @foreach ($travelModeOptions as $value => $label)
+                            <option value="{{ $value }}" @selected(old('travel_mode', $show->travel_mode ?: 'van') === $value)>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                    <x-input-error class="mt-2" :messages="$errors->get('travel_mode')" />
+                </div>
+
+                @if ($show->exists)
+                    <button
+                        type="submit"
+                        formaction="{{ route('shows.preview-route', $show) }}"
+                        formmethod="POST"
+                        x-on:click="calculatingRoute = true"
+                        class="inline-flex items-center justify-center rounded-full border border-sky-300 px-5 py-3 text-sm font-semibold text-sky-700 transition hover:bg-sky-50"
+                    >
+                        <span x-text="calculatingRoute ? 'Calculando...' : 'Calcular ruta'"></span>
+                    </button>
+                @endif
+            </div>
+        </div>
     </div>
+
+    <div x-show="travelMode === 'plane'" x-cloak class="rounded-[2rem] border border-sky-200 bg-sky-50 p-6">
+        <h3 class="text-lg font-semibold text-slate-900">Datos de vuelo</h3>
+        <p class="mt-2 text-sm text-slate-600">Para avion usamos datos manuales utiles para produccion y cita de equipo.</p>
+
+        <div class="mt-5 grid gap-4 lg:grid-cols-2">
+            <div>
+                <x-input-label for="flight_origin" value="Origen vuelo" />
+                <x-text-input id="flight_origin" name="flight_origin" type="text" class="mt-1 block w-full" :value="old('flight_origin', $show->flight_origin)" />
+                <x-input-error class="mt-2" :messages="$errors->get('flight_origin')" />
+            </div>
+            <div>
+                <x-input-label for="flight_destination" value="Destino vuelo" />
+                <x-text-input id="flight_destination" name="flight_destination" type="text" class="mt-1 block w-full" :value="old('flight_destination', $show->flight_destination)" />
+                <x-input-error class="mt-2" :messages="$errors->get('flight_destination')" />
+            </div>
+            <div>
+                <x-input-label for="flight_duration_estimate" value="Duracion estimada" />
+                <x-text-input id="flight_duration_estimate" name="flight_duration_estimate" type="text" class="mt-1 block w-full" :value="old('flight_duration_estimate', $show->flight_duration_estimate)" />
+                <x-input-error class="mt-2" :messages="$errors->get('flight_duration_estimate')" />
+            </div>
+            <div class="lg:col-span-2">
+                <x-input-label for="flight_notes" value="Notas de vuelo y traslados" />
+                <textarea id="flight_notes" name="flight_notes" rows="4" class="mt-1 block w-full rounded-2xl border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500">{{ old('flight_notes', $show->flight_notes) }}</textarea>
+                <x-input-error class="mt-2" :messages="$errors->get('flight_notes')" />
+            </div>
+        </div>
+    </div>
+
+    @if (! empty($travelPreview ?? null))
+        <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Previsualizacion</p>
+                    <h3 class="mt-1 text-lg font-semibold text-slate-900">Resultado del calculo de ruta</h3>
+                </div>
+                @if (! empty($travelPreview['available']))
+                    <a href="{{ $travelPreview['directions_url'] }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-full border border-sky-200 px-4 py-2 text-sm font-semibold text-sky-700 transition hover:bg-sky-50">
+                        Abrir ruta
+                    </a>
+                @endif
+            </div>
+
+            <div class="mt-5 grid gap-4 lg:grid-cols-2">
+                <div class="rounded-2xl bg-slate-50 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Origen</p>
+                    <p class="mt-2 text-sm font-medium text-slate-900">{{ $travelPreview['origin'] ?: 'Pendiente' }}</p>
+                </div>
+                <div class="rounded-2xl bg-slate-50 p-4">
+                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Destino</p>
+                    <p class="mt-2 text-sm font-medium text-slate-900">{{ $travelPreview['destination'] ?: 'Pendiente' }}</p>
+                </div>
+            </div>
+
+            @if (! empty($travelPreview['available']))
+                <div class="mt-4 grid gap-4 sm:grid-cols-2">
+                    <div class="rounded-2xl bg-sky-50 p-4">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">Tiempo estimado</p>
+                        <p class="mt-2 text-xl font-semibold text-slate-900">{{ $travelPreview['duration_text'] }}</p>
+                    </div>
+                    <div class="rounded-2xl bg-slate-50 p-4">
+                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Distancia</p>
+                        <p class="mt-2 text-xl font-semibold text-slate-900">{{ $travelPreview['distance_text'] }}</p>
+                    </div>
+                </div>
+            @elseif (($travelPreview['reason'] ?? null) === 'plane_mode')
+                <div class="mt-4 rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800">
+                    En modo avion se usan los campos manuales de vuelo y no se calcula ruta por carretera.
+                </div>
+            @elseif (($travelPreview['reason'] ?? null) === 'missing_addresses')
+                <div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                    Falta origen de viaje o una direccion de venue suficiente para hacer el calculo.
+                </div>
+            @elseif (($travelPreview['reason'] ?? null) === 'geocoding_failed')
+                <div class="mt-4 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                    No se han encontrado bien las direcciones. Revisa origen y venue.
+                </div>
+            @else
+                <div class="mt-4 rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+                    No se ha podido calcular la ruta en este momento.
+                </div>
+            @endif
+        </div>
+    @endif
 
     <div>
         <h3 class="text-lg font-semibold text-slate-900">Horarios</h3>

@@ -181,6 +181,18 @@
                 color: #64748b;
             }
 
+            .route-grid {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0 10px;
+            }
+
+            .route-grid td {
+                width: 50%;
+                vertical-align: top;
+                padding-right: 10px;
+            }
+
             table.schedule {
                 width: 100%;
                 border-collapse: collapse;
@@ -257,6 +269,72 @@
                 <div class="card">
                     <div class="label">Venue</div>
                     <div class="value">{{ $show->venue ?: 'Pendiente' }}</div>
+                </div>
+                <div class="card">
+                    <div class="label">Ruta al venue</div>
+                    <table class="route-grid">
+                        <tr>
+                            <td>
+                                <div class="label">Modo de viaje</div>
+                                <div class="body-text">{{ $travelModeOptions[$show->travel_mode ?: 'van'] ?? ($show->travel_mode ?: 'van') }}</div>
+                            </td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div class="label">Origen</div>
+                                <div class="body-text">{{ $travelRoute['origin'] ?: 'Pendiente' }}</div>
+                            </td>
+                            <td>
+                                <div class="label">Destino</div>
+                                <div class="body-text">{{ $travelRoute['destination'] ?: 'Pendiente' }}</div>
+                            </td>
+                        </tr>
+                        @if (! empty($travelRoute['available']))
+                            <tr>
+                                <td>
+                                    <div class="label">Tiempo estimado</div>
+                                    <div class="value">{{ $travelRoute['duration_text'] }}</div>
+                                </td>
+                                <td>
+                                    <div class="label">Distancia</div>
+                                    <div class="value">{{ $travelRoute['distance_text'] }}</div>
+                                </td>
+                            </tr>
+                        @endif
+                    </table>
+
+                    @if (! empty($travelRoute['available']))
+                        <div class="body-text">Abrir ruta: {{ $travelRoute['directions_url'] }}</div>
+                    @elseif (($travelRoute['reason'] ?? null) === 'plane_mode')
+                        <div class="body-text">Modo avion seleccionado. No se calcula ruta por carretera para este bolo.</div>
+                        <table class="route-grid">
+                            <tr>
+                                <td>
+                                    <div class="label">Origen vuelo</div>
+                                    <div class="body-text">{{ $show->flight_origin ?: 'Pendiente' }}</div>
+                                </td>
+                                <td>
+                                    <div class="label">Destino vuelo</div>
+                                    <div class="body-text">{{ $show->flight_destination ?: 'Pendiente' }}</div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <div class="label">Duracion estimada</div>
+                                    <div class="body-text">{{ $show->flight_duration_estimate ?: 'Pendiente' }}</div>
+                                </td>
+                                <td></td>
+                            </tr>
+                        </table>
+                        <div class="body-text">{{ $show->flight_notes ?: 'Sin notas de vuelo.' }}</div>
+                    @elseif (($travelRoute['reason'] ?? null) === 'missing_addresses')
+                        <div class="body-text">Falta origen de viaje o una direccion de venue suficiente para calcular la ruta.</div>
+                    @elseif (($travelRoute['reason'] ?? null) === 'geocoding_failed')
+                        <div class="body-text">No se han localizado correctamente las direcciones para calcular la ruta.</div>
+                    @else
+                        <div class="body-text">No se ha podido generar la ruta en este momento.</div>
+                    @endif
                 </div>
                 <div class="card">
                     <div class="label">Notas del espacio</div>

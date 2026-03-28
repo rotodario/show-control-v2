@@ -8,6 +8,7 @@ use App\Models\Show;
 use App\Models\Tour;
 use App\Models\UserPdfSetting;
 use App\Support\ActivityLogger;
+use App\Support\OpenStreetMapRouteService;
 use App\Support\ShowAlertService;
 use App\Support\ShowMessageReadService;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -107,9 +108,11 @@ class ShowController extends Controller
             'show' => new Show([
                 'date' => now(),
                 'status' => array_key_first(Show::STATUS_OPTIONS),
+                'travel_mode' => 'van',
             ]),
             'tours' => Tour::ownedBy(auth()->id())->orderBy('name')->get(),
             'statusOptions' => Show::STATUS_OPTIONS,
+            'travelModeOptions' => Show::TRAVEL_MODE_OPTIONS,
         ]);
     }
 
@@ -134,7 +137,12 @@ class ShowController extends Controller
             ->with('status', 'Bolo creado correctamente.');
     }
 
-    public function show(Show $show, ShowAlertService $showAlertService, ShowMessageReadService $showMessageReadService): View
+    public function show(
+        Show $show,
+        ShowAlertService $showAlertService,
+        ShowMessageReadService $showMessageReadService,
+        OpenStreetMapRouteService $openStreetMapRouteService
+    ): View
     {
         $this->ensureOwnedShow($show);
 
@@ -148,21 +156,31 @@ class ShowController extends Controller
             'alerts' => $showAlertService->alertsForShow($show, user: request()->user()),
             'sectionMessages' => $show->sectionMessages->groupBy('section'),
             'unreadMessageIds' => $unreadMessageIds,
+            'travelRoute' => $openStreetMapRouteService->routeForShow($show),
+            'travelModeOptions' => Show::TRAVEL_MODE_OPTIONS,
         ]);
     }
 
-    public function pdf(Show $show, Request $request, ShowAlertService $showAlertService): Response
+    public function pdf(
+        Show $show,
+        Request $request,
+        ShowAlertService $showAlertService,
+        OpenStreetMapRouteService $openStreetMapRouteService
+    ): Response
     {
         $this->ensureOwnedShow($show);
 
         $show->load('tour.contacts');
         $this->ensurePdfRuntimePaths();
+        $travelRoute = $openStreetMapRouteService->routeForShow($show);
 
         $pdf = Pdf::loadView('shows.pdf.roadmap', [
             'show' => $show,
             'statusOptions' => Show::STATUS_OPTIONS,
             'alerts' => $showAlertService->alertsForShow($show, user: $request->user()),
             'pdfSettings' => $request->user()?->pdfSettings ?? new UserPdfSetting(),
+            'travelRoute' => $travelRoute,
+            'travelModeOptions' => Show::TRAVEL_MODE_OPTIONS,
         ])->setPaper('a4');
 
         $filename = sprintf(
@@ -186,7 +204,26 @@ class ShowController extends Controller
             'show' => $show,
             'tours' => Tour::ownedBy(auth()->id())->orderBy('name')->get(),
             'statusOptions' => Show::STATUS_OPTIONS,
+            'travelModeOptions' => Show::TRAVEL_MODE_OPTIONS,
+            'travelPreview' => session('travel_preview'),
         ]);
+    }
+
+    public function previewRoute(UpdateShowRequest $request, Show $show, OpenStreetMapRouteService $openStreetMapRouteService): RedirectResponse
+    {
+        $this->ensureOwnedShow($show);
+
+        $previewShow = $show->replicate();
+        $previewShow->forceFill([
+            ...$show->getAttributes(),
+            ...$this->payload($request),
+        ]);
+
+        return redirect()
+            ->route('shows.edit', $show)
+            ->withInput()
+            ->with('travel_preview', $openStreetMapRouteService->routeForShow($previewShow))
+            ->with('status', 'Ruta calculada. Revisa el resultado y guarda el bolo cuando quieras.');
     }
 
     public function update(UpdateShowRequest $request, Show $show): RedirectResponse

@@ -193,6 +193,9 @@ Implementado:
 - `Cuenta > PDF y branding` con persistencia y efecto real en roadmap PDF
 - `Plataforma > Usuarios` con cambio de rol global y activacion/desactivacion
 - `Plataforma > Herramientas` con chequeos de salud y backup/restauracion de base de datos
+- logistica de viaje por bolo con origen configurable, modos `coche`, `furgo`, `sleeper` y `avion`
+- calculo de ruta por carretera en la ficha del bolo con mapa embebido, distancia, tiempo y enlace
+- datos manuales de vuelo para `avion` y resumen logistico de viaje en el PDF
 
 ## Licencia
 

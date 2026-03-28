@@ -28,6 +28,10 @@ class StoreShowRequest extends FormRequest
     {
         $normalized = [];
 
+        if (blank($this->input('travel_mode'))) {
+            $normalized['travel_mode'] = 'van';
+        }
+
         foreach (self::TIME_FIELDS as $field) {
             $value = $this->input($field);
 
@@ -51,6 +55,12 @@ class StoreShowRequest extends FormRequest
             'date' => ['required', 'date'],
             'city' => ['required', 'string', 'max:255'],
             'venue' => ['nullable', 'string', 'max:255'],
+            'travel_origin' => ['nullable', 'string', 'max:255'],
+            'travel_mode' => ['required', Rule::in(array_keys(Show::TRAVEL_MODE_OPTIONS))],
+            'flight_origin' => ['nullable', 'string', 'max:255'],
+            'flight_destination' => ['nullable', 'string', 'max:255'],
+            'flight_duration_estimate' => ['nullable', 'string', 'max:255'],
+            'flight_notes' => ['nullable', 'string', 'max:5000'],
             'name' => ['required', 'string', 'max:255'],
             'status' => ['required', Rule::in(array_keys(Show::STATUS_OPTIONS))],
             'load_in_at' => ['nullable', 'date_format:H:i:s'],

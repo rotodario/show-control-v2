@@ -117,6 +117,160 @@
                     </div>
 
                     <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <h3 class="text-lg font-semibold text-slate-900">Ruta al venue</h3>
+                                <p class="mt-1 text-sm text-slate-500">Trayecto estimado desde el origen configurado para este bolo.</p>
+                            </div>
+                            @if (! empty($travelRoute['available']))
+                                <a href="{{ $travelRoute['directions_url'] }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-full border border-sky-200 px-3 py-2 text-xs font-semibold text-sky-700 transition hover:bg-sky-50">
+                                    Abrir ruta
+                                </a>
+                            @endif
+                        </div>
+
+                        <div class="mt-4 space-y-4">
+                            <div class="grid gap-3 sm:grid-cols-2">
+                                <div class="rounded-2xl bg-slate-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Modo de viaje</p>
+                                    <p class="mt-2 text-sm font-medium text-slate-900">{{ $travelModeOptions[$show->travel_mode ?: 'van'] ?? ($show->travel_mode ?: 'van') }}</p>
+                                </div>
+                                <div class="rounded-2xl bg-slate-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Origen</p>
+                                    <p class="mt-2 text-sm font-medium text-slate-900">{{ $travelRoute['origin'] ?: 'Pendiente' }}</p>
+                                </div>
+                                <div class="rounded-2xl bg-slate-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Destino</p>
+                                    <p class="mt-2 text-sm font-medium text-slate-900">{{ $travelRoute['destination'] ?: 'Pendiente' }}</p>
+                                </div>
+                            </div>
+
+                            @if (! empty($travelRoute['available']))
+                                <link
+                                    rel="stylesheet"
+                                    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+                                    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+                                    crossorigin=""
+                                >
+
+                                <div class="grid gap-3 sm:grid-cols-2">
+                                    <div class="rounded-2xl bg-sky-50 p-4">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">Tiempo estimado</p>
+                                        <p class="mt-2 text-xl font-semibold text-slate-900">{{ $travelRoute['duration_text'] }}</p>
+                                    </div>
+                                    <div class="rounded-2xl bg-slate-50 p-4">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Distancia</p>
+                                        <p class="mt-2 text-xl font-semibold text-slate-900">{{ $travelRoute['distance_text'] }}</p>
+                                    </div>
+                                </div>
+
+                                <div class="overflow-hidden rounded-[1.5rem] border border-slate-200">
+                                    <div
+                                        id="show-route-map"
+                                        class="w-full"
+                                        style="height: 22rem;"
+                                        data-route-geometry='@json($travelRoute["geometry"])'
+                                        data-origin-point='@json($travelRoute["origin_point"])'
+                                        data-destination-point='@json($travelRoute["destination_point"])'
+                                    ></div>
+                                </div>
+
+                                <script
+                                    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+                                    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+                                    crossorigin=""
+                                ></script>
+                                <script>
+                                    (() => {
+                                        const initRouteMap = () => {
+                                            const mapElement = document.getElementById('show-route-map');
+
+                                            if (!mapElement || typeof L === 'undefined' || mapElement.dataset.mapReady === '1') {
+                                                return;
+                                            }
+
+                                            const geometry = JSON.parse(mapElement.dataset.routeGeometry || '{}');
+                                            const originPoint = JSON.parse(mapElement.dataset.originPoint || '{}');
+                                            const destinationPoint = JSON.parse(mapElement.dataset.destinationPoint || '{}');
+
+                                            if (!Array.isArray(geometry.coordinates) || geometry.coordinates.length === 0) {
+                                                return;
+                                            }
+
+                                            mapElement.dataset.mapReady = '1';
+
+                                            const map = L.map(mapElement, { scrollWheelZoom: false });
+
+                                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                                maxZoom: 18,
+                                                attribution: '&copy; OpenStreetMap',
+                                            }).addTo(map);
+
+                                            const routeCoordinates = geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+                                            const routeLine = L.polyline(routeCoordinates, {
+                                                color: '#2563eb',
+                                                weight: 5,
+                                                opacity: 0.85,
+                                            }).addTo(map);
+
+                                            if (originPoint.lat && originPoint.lon) {
+                                                L.marker([originPoint.lat, originPoint.lon]).addTo(map).bindPopup('Origen');
+                                            }
+
+                                            if (destinationPoint.lat && destinationPoint.lon) {
+                                                L.marker([destinationPoint.lat, destinationPoint.lon]).addTo(map).bindPopup('Destino');
+                                            }
+
+                                            map.fitBounds(routeLine.getBounds(), { padding: [24, 24] });
+                                        };
+
+                                        if (document.readyState === 'loading') {
+                                            document.addEventListener('DOMContentLoaded', initRouteMap, { once: true });
+                                        } else {
+                                            initRouteMap();
+                                        }
+                                    })();
+                                </script>
+
+                            @elseif (($travelRoute['reason'] ?? null) === 'plane_mode')
+                                <div class="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800">
+                                    El modo de viaje es avion. No se calcula ruta por carretera, pero puedes seguir usando origen y destino como referencia logistica.
+                                </div>
+                                <div class="grid gap-3 sm:grid-cols-2">
+                                    <div class="rounded-2xl bg-white p-4 ring-1 ring-sky-100">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Origen vuelo</p>
+                                        <p class="mt-2 text-sm font-medium text-slate-900">{{ $show->flight_origin ?: 'Pendiente' }}</p>
+                                    </div>
+                                    <div class="rounded-2xl bg-white p-4 ring-1 ring-sky-100">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Destino vuelo</p>
+                                        <p class="mt-2 text-sm font-medium text-slate-900">{{ $show->flight_destination ?: 'Pendiente' }}</p>
+                                    </div>
+                                    <div class="rounded-2xl bg-white p-4 ring-1 ring-sky-100">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Duracion estimada</p>
+                                        <p class="mt-2 text-sm font-medium text-slate-900">{{ $show->flight_duration_estimate ?: 'Pendiente' }}</p>
+                                    </div>
+                                    <div class="rounded-2xl bg-white p-4 ring-1 ring-sky-100 sm:col-span-2">
+                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Notas de vuelo y traslados</p>
+                                        <div class="mt-2 text-sm leading-6 text-slate-700 whitespace-pre-line">{{ $show->flight_notes ?: 'Sin notas.' }}</div>
+                                    </div>
+                                </div>
+                            @elseif (($travelRoute['reason'] ?? null) === 'missing_addresses')
+                                <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                                    Completa el origen de viaje y asegúrate de que el venue tenga texto suficiente para calcular la ruta.
+                                </div>
+                            @elseif (($travelRoute['reason'] ?? null) === 'geocoding_failed')
+                                <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                                    No se han encontrado bien las direcciones. Revisa el origen o detalla mejor el venue.
+                                </div>
+                            @else
+                                <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
+                                    No se ha podido calcular la ruta ahora mismo. Inténtalo más tarde.
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
                         <div class="flex items-center justify-between gap-3">
                             <div>
                                 <h3 class="text-lg font-semibold text-slate-900">Documentos del bolo</h3>

@@ -24,6 +24,7 @@
         @unless (app()->environment('testing'))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endunless
+        @stack('styles')
     </head>
     <body class="min-h-screen bg-slate-100 font-sans text-slate-900 antialiased transition-colors">
         <div class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.12),_transparent_35%),linear-gradient(180deg,_#f8fafc_0%,_#eef2ff_100%)] transition-colors">
@@ -48,4 +49,5 @@
             </footer>
         </div>
     </body>
+    @stack('scripts')
 </html>

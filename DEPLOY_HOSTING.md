@@ -96,6 +96,12 @@ Si cambias herramientas de plataforma o backups:
 - subir archivos modificados de `app/Http/Controllers/`, `app/Support/`, `app/Http/Requests/` y `resources/views/platform/`
 - ejecutar `php artisan optimize:clear` o el runner web equivalente
 
+Si cambias logistica de ruta o transporte de bolos:
+
+- subir archivos modificados de `app/Support/`, `app/Http/Controllers/`, `app/Http/Requests/`, `app/Models/`, `resources/views/shows/` y `routes/`
+- si hay migraciones nuevas de bolos, subirlas a `html/sc_app/database/migrations/`
+- ejecutar `php artisan migrate --force` y luego `php artisan optimize:clear` o el runner web equivalente
+
 ## No subir normalmente
 
 - `node_modules/`
@@ -128,5 +134,7 @@ Comprobar:
 - PDF abre
 - subida de documentos funciona
 - chat por secciones funciona
+- ficha de bolo calcula ruta por carretera y muestra el mapa embebido
+- modo `avion` muestra los datos manuales de vuelo
 - `Plataforma > Usuarios` carga y permite gestionar cuentas
 - `Plataforma > Herramientas` muestra chequeos, crea backup y lista backups

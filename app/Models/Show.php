@@ -19,6 +19,13 @@ class Show extends Model
         'cancelled' => 'Cancelado',
     ];
 
+    public const TRAVEL_MODE_OPTIONS = [
+        'car' => 'Coche',
+        'van' => 'Furgo',
+        'sleeper' => 'Sleeper',
+        'plane' => 'Avion',
+    ];
+
     protected $fillable = [
         'owner_id',
         'external_source',
@@ -28,6 +35,12 @@ class Show extends Model
         'date',
         'city',
         'venue',
+        'travel_origin',
+        'travel_mode',
+        'flight_origin',
+        'flight_destination',
+        'flight_duration_estimate',
+        'flight_notes',
         'name',
         'status',
         'load_in_at',

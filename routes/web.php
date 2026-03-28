@@ -72,6 +72,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('permission:manage shows')->group(function () {
         Route::get('/shows-calendar', [ShowController::class, 'calendar'])->name('shows.calendar');
         Route::resource('shows', ShowController::class);
+        Route::put('/shows/{show}/preview-route', [ShowController::class, 'previewRoute'])->name('shows.preview-route');
         Route::get('/shows/{show}/pdf', [ShowController::class, 'pdf'])->name('shows.pdf');
         Route::post('/shows/{show}/documents', [ShowDocumentController::class, 'store'])->name('shows.documents.store');
         Route::post('/shows/{show}/section-messages', [ShowSectionMessageController::class, 'store'])->name('shows.section-messages.store');
