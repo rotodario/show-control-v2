@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\UserAlertSetting;
+use App\Models\UserPreference;
 use App\Models\UserPdfSetting;
 use App\Models\User;
 use Database\Seeders\RolesAndPermissionsSeeder;
@@ -36,6 +37,52 @@ class AccountSettingsTest extends TestCase
         $this->actingAs($user)->get(route('account.preferences'))
             ->assertOk()
             ->assertSee('Preferencias de cuenta');
+    }
+
+    public function test_admin_can_update_preferences(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+
+        $response = $this->actingAs($user)->put(route('account.preferences.update'), [
+            'default_show_status' => 'confirmed',
+            'default_travel_mode' => 'sleeper',
+            'default_city' => 'Madrid',
+            'default_travel_origin' => 'Calle Alcala 45, Madrid',
+        ]);
+
+        $response->assertRedirect(route('account.preferences'));
+
+        $this->assertDatabaseHas('user_preferences', [
+            'user_id' => $user->id,
+            'default_show_status' => 'confirmed',
+            'default_travel_mode' => 'sleeper',
+            'default_city' => 'Madrid',
+            'default_travel_origin' => 'Calle Alcala 45, Madrid',
+        ]);
+    }
+
+    public function test_preferences_page_uses_saved_values(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+
+        UserPreference::create([
+            'user_id' => $user->id,
+            'default_show_status' => 'confirmed',
+            'default_travel_mode' => 'car',
+            'default_city' => 'Barcelona',
+            'default_travel_origin' => 'Sants, Barcelona',
+        ]);
+
+        $this->actingAs($user)->get(route('account.preferences'))
+            ->assertOk()
+            ->assertSee('Barcelona')
+            ->assertSee('Sants, Barcelona');
     }
 
     public function test_admin_can_update_alert_settings(): void
@@ -151,5 +198,28 @@ class AccountSettingsTest extends TestCase
 
         $this->actingAs($user)->get(route('account.index'))
             ->assertRedirect(route('account.profile'));
+    }
+
+    public function test_new_show_uses_saved_preferences_as_defaults(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+
+        UserPreference::create([
+            'user_id' => $user->id,
+            'default_show_status' => 'confirmed',
+            'default_travel_mode' => 'sleeper',
+            'default_city' => 'Sevilla',
+            'default_travel_origin' => 'Base tecnica Sevilla',
+        ]);
+
+        $this->actingAs($user)->get(route('shows.create'))
+            ->assertOk()
+            ->assertSee('value="Sevilla"', false)
+            ->assertSee('Base tecnica Sevilla')
+            ->assertSee('value="confirmed" selected', false)
+            ->assertSee('value="sleeper" selected', false);
     }
 }

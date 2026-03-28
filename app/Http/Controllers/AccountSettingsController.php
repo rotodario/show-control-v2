@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\UpdateUserAlertSettingsRequest;
+use App\Http\Requests\UpdateUserPreferencesRequest;
 use App\Http\Requests\UpdateUserPdfSettingsRequest;
 use App\Models\UserAlertSetting;
+use App\Models\UserPreference;
 use App\Models\UserPdfSetting;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -66,7 +68,22 @@ class AccountSettingsController extends Controller
     {
         return view('account.preferences', [
             'user' => $request->user(),
+            'settings' => $request->user()?->preferences()->firstOrNew(),
+            'statusOptions' => \App\Models\Show::STATUS_OPTIONS,
+            'travelModeOptions' => \App\Models\Show::TRAVEL_MODE_OPTIONS,
             'accountSection' => 'preferences',
         ]);
+    }
+
+    public function updatePreferences(UpdateUserPreferencesRequest $request): RedirectResponse
+    {
+        UserPreference::query()->updateOrCreate(
+            ['user_id' => $request->user()->id],
+            $request->validated(),
+        );
+
+        return redirect()
+            ->route('account.preferences')
+            ->with('status', 'preferences-updated');
     }
 }

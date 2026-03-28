@@ -191,6 +191,7 @@ Implementado:
 - contadores de alertas y mensajes nuevos en dashboard y listados
 - `Cuenta > Alertas` con persistencia y efecto real en dashboard y listados
 - `Cuenta > PDF y branding` con persistencia y efecto real en roadmap PDF
+- `Cuenta > Preferencias` con valores por defecto para nuevos bolos
 - `Plataforma > Usuarios` con cambio de rol global y activacion/desactivacion
 - `Plataforma > Herramientas` con chequeos de salud y backup/restauracion de base de datos
 - logistica de viaje por bolo con origen configurable, modos `coche`, `furgo`, `sleeper` y `avion`

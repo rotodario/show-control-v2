@@ -104,11 +104,15 @@ class ShowController extends Controller
 
     public function create(): View
     {
+        $preferences = auth()->user()?->preferences()->firstOrNew();
+
         return view('shows.create', [
             'show' => new Show([
                 'date' => now(),
-                'status' => array_key_first(Show::STATUS_OPTIONS),
-                'travel_mode' => 'van',
+                'status' => $preferences->default_show_status ?: array_key_first(Show::STATUS_OPTIONS),
+                'travel_mode' => $preferences->default_travel_mode ?: 'van',
+                'city' => $preferences->default_city,
+                'travel_origin' => $preferences->default_travel_origin,
             ]),
             'tours' => Tour::ownedBy(auth()->id())->orderBy('name')->get(),
             'statusOptions' => Show::STATUS_OPTIONS,

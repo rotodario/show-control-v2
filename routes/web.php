@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/account/pdf', [AccountSettingsController::class, 'pdf'])->name('account.pdf');
         Route::put('/account/pdf', [AccountSettingsController::class, 'updatePdf'])->name('account.pdf.update');
         Route::get('/account/preferences', [AccountSettingsController::class, 'preferences'])->name('account.preferences');
+        Route::put('/account/preferences', [AccountSettingsController::class, 'updatePreferences'])->name('account.preferences.update');
     });
 
     Route::middleware('permission:manage tours')->group(function () {

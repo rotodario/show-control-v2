@@ -78,6 +78,11 @@ class User extends Authenticatable
         return $this->hasOne(UserPdfSetting::class);
     }
 
+    public function preferences(): HasOne
+    {
+        return $this->hasOne(UserPreference::class);
+    }
+
     public function uploadedShowDocuments(): HasMany
     {
         return $this->hasMany(ShowDocument::class, 'uploaded_by');
