@@ -20,6 +20,7 @@ class DashboardController extends Controller
 
         $upcomingShows = Show::ownedBy($userId)
             ->with(['tour', 'sectionMessages'])
+            ->whereDate('date', '>=', now()->toDateString())
             ->orderBy('date')
             ->take(6)
             ->get();

@@ -12,6 +12,11 @@ class Tour extends Model
 {
     use HasFactory;
 
+    private const LEGACY_ICS_NOTES = [
+        'Creada automaticamente desde importacion por ICS.',
+        'Created automatically from ICS import.',
+    ];
+
     protected $fillable = [
         'owner_id',
         'name',
@@ -52,5 +57,18 @@ class Tour extends Model
     public function activityLogs(): HasMany
     {
         return $this->hasMany(ActivityLog::class)->latest();
+    }
+
+    public function localizedNotes(): ?string
+    {
+        if (blank($this->notes)) {
+            return $this->notes;
+        }
+
+        if (in_array($this->notes, self::LEGACY_ICS_NOTES, true)) {
+            return __('ui.tour_created_from_ics_notes');
+        }
+
+        return $this->notes;
     }
 }

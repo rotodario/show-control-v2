@@ -151,10 +151,19 @@ Puntos importantes:
 
 ## Idioma de interfaz
 
-- La app ya soporta base de locale para `es` y `en`
+- La app soporta locale base para `es` y `en`
 - `Plataforma > Ajustes` define el idioma por defecto global
 - `Cuenta > Preferencias` permite fijar un idioma propio por usuario
-- La traduccion se esta aplicando por bloques empezando por la UI compartida
+- La UI ya esta traducida en los bloques principales:
+  - dashboard
+  - cuenta
+  - plataforma
+  - bolos
+  - giras
+  - calendario
+  - importacion ICS
+  - accesos compartidos internos y publicos
+  - PDF roadmap
 
 ## Mensajeria interna y alertas
 
@@ -185,6 +194,35 @@ La importacion:
 - crea la gira si no existe
 - evita duplicados por `UID` del evento ICS
 - guarda trazabilidad del origen
+
+## Logistica de viaje
+
+- Cada bolo puede guardar un `origen de viaje`
+- Modos disponibles:
+  - `coche`
+  - `furgo`
+  - `sleeper`
+  - `avion`
+- Para carretera se calcula:
+  - tiempo estimado
+  - distancia
+  - mapa embebido
+  - enlace de ruta
+- Para `avion` se usan datos manuales de vuelo y traslados
+- Los bolos pasados se muestran como `closed` de forma efectiva en la UI, mails y PDF sin depender de cron
+
+## Accesos compartidos
+
+- `Accesos` permite crear enlaces por token sin login
+- Cada token puede limitarse por:
+  - rol
+  - gira
+- La parte publica soporta:
+  - visualizacion de bolos
+  - alertas segun visibilidad
+  - documentos visibles
+  - chat por secciones visibles
+  - creacion/edicion/borrado segun permisos del rol
 
 ## Tests
 
@@ -225,7 +263,8 @@ Implementado:
 - logistica de viaje por bolo con origen configurable, modos `coche`, `furgo`, `sleeper` y `avion`
 - calculo de ruta por carretera en la ficha del bolo con mapa embebido, distancia, tiempo y enlace
 - datos manuales de vuelo para `avion` y resumen logistico de viaje en el PDF
-- infraestructura base de idioma `es/en` con traduccion inicial de UI compartida
+- infraestructura base de idioma `es/en` con traduccion aplicada a la mayoria de la UI operativa y publica
+- cierre efectivo automatico de bolos pasados en la presentacion de estado
 
 ## Licencia
 

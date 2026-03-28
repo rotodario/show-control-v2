@@ -49,7 +49,7 @@ class TourController extends Controller
 
         return redirect()
             ->route('tours.show', $tour)
-            ->with('status', 'Gira creada correctamente.');
+            ->with('status', __('ui.tour_created'));
     }
 
     public function show(Tour $tour): View
@@ -93,7 +93,7 @@ class TourController extends Controller
 
         return redirect()
             ->route('tours.show', $tour)
-            ->with('status', 'Gira actualizada.');
+            ->with('status', __('ui.tour_updated'));
     }
 
     public function destroy(Tour $tour): RedirectResponse
@@ -115,7 +115,7 @@ class TourController extends Controller
 
         return redirect()
             ->route('tours.index')
-            ->with('status', 'Gira eliminada.');
+            ->with('status', __('ui.tour_deleted'));
     }
 
     private function ensureOwnedTour(Tour $tour): void

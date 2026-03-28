@@ -117,6 +117,11 @@ Si cambias idioma o traducciones:
 - si hay migraciones nuevas de preferencias o ajustes de locale, subirlas a `html/sc_app/database/migrations/`
 - ejecutar `php artisan migrate --force` y luego `php artisan optimize:clear` o el runner web equivalente
 
+Si cambias accesos compartidos internos o publicos:
+
+- subir archivos modificados de `app/Http/Controllers/SharedAccessController.php`, `app/Http/Controllers/PublicSharedAccessController.php`, `app/Models/SharedAccess.php`, `app/Support/SharedAccessService.php`, `resources/views/shared-accesses/`, `resources/views/public-access/`, `resources/views/components/public-access-layout.blade.php`, `lang/` y `routes/`
+- ejecutar `php artisan optimize:clear` o el runner web equivalente
+
 Si cambias logistica de ruta o transporte de bolos:
 
 - subir archivos modificados de `app/Support/`, `app/Http/Controllers/`, `app/Http/Requests/`, `app/Models/`, `resources/views/shows/` y `routes/`
@@ -162,3 +167,7 @@ Comprobar:
 - `Plataforma > Ajustes` carga y el idioma por defecto cambia la UI compartida
 - `Plataforma > Herramientas` muestra chequeos, crea backup y lista backups
 - `Cuenta > Correo` carga y puede enviar `Hoja de ruta` y `Alerta operativa`
+- `Accesos` carga y permite crear/revocar enlaces por token
+- el acceso publico por token respeta idioma, permisos y visibilidad
+- `Tour` y `Dashboard` muestran correctamente las notas de giras creadas por importacion ICS segun el idioma activo
+- el footer se integra bien en light/dark mode

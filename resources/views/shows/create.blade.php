@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Bolos</p>
-            <h2 class="text-2xl font-semibold text-slate-900">Nuevo bolo</h2>
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">{{ __('ui.shows') }}</p>
+            <h2 class="text-2xl font-semibold text-slate-900">{{ __('ui.new_show') }}</h2>
         </div>
     </x-slot>
 

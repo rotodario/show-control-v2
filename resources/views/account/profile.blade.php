@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Cuenta</p>
-            <h2 class="text-2xl font-semibold text-slate-900">Perfil</h2>
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">{{ __('ui.account') }}</p>
+            <h2 class="text-2xl font-semibold text-slate-900">{{ __('ui.profile') }}</h2>
         </div>
     </x-slot>
 

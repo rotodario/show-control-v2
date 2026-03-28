@@ -159,7 +159,7 @@ class ShowMailNotificationTest extends TestCase
         $mail = new ShowAlertSummaryMail($show, $user, $settings, app(\App\Support\ShowAlertService::class)->alertsForShow($show, user: $user));
         $html = $mail->render();
 
-        $this->assertStringContainsString('Detalle de alertas:', $html);
+        $this->assertStringContainsString('Alertas activas del bolo', $html);
         $this->assertStringContainsString('Falta', $html);
     }
 

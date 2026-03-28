@@ -35,7 +35,7 @@ class GoogleCalendarImportController extends Controller
                 );
             } catch (\Throwable) {
                 return back()->withErrors([
-                    'ics_url' => 'No se ha podido leer el calendario ICS con esa URL.',
+                    'ics_url' => __('ui.ics_url_read_error'),
                 ])->withInput();
             }
         }
@@ -68,7 +68,7 @@ class GoogleCalendarImportController extends Controller
             ));
         } catch (\Throwable) {
             return back()->withErrors([
-                'ics_url' => 'No se ha podido leer el calendario ICS con esa URL.',
+                'ics_url' => __('ui.ics_url_read_error'),
             ])->withInput();
         }
 
@@ -133,7 +133,7 @@ class GoogleCalendarImportController extends Controller
                 'date_from' => $validated['date_from'],
                 'date_to' => $validated['date_to'],
             ])
-            ->with('status', "Importacion completada. Nuevos bolos: {$imported}. Omitidos: {$skipped}.");
+            ->with('status', __('ui.ics_import_completed', ['imported' => $imported, 'skipped' => $skipped]));
     }
 
     private function buildPreviewEvents(
@@ -180,7 +180,7 @@ class GoogleCalendarImportController extends Controller
             'owner_id' => $request->user()->id,
             'name' => $tourName,
             'color' => $this->defaultColorForTour($tourName),
-            'notes' => 'Creada automaticamente desde importacion por ICS.',
+            'notes' => __('ui.tour_created_from_ics_notes'),
         ]);
 
         ActivityLogger::log(

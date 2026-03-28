@@ -22,6 +22,25 @@ class ShowDocument extends Model
         'Otro',
     ];
 
+    public static function translatedTypes(): array
+    {
+        return [
+            'Rider' => __('ui.document_type_rider'),
+            'Hospitality' => __('ui.document_type_hospitality'),
+            'Patch' => __('ui.document_type_patch'),
+            'Plano' => __('ui.document_type_plot'),
+            'Timing' => __('ui.document_type_timing'),
+            'Produccion' => __('ui.document_type_production'),
+            'Input List' => __('ui.document_type_input_list'),
+            'Otro' => __('ui.document_type_other'),
+        ];
+    }
+
+    public static function translatedTypeLabel(?string $type): string
+    {
+        return static::translatedTypes()[$type] ?? (string) $type;
+    }
+
     protected $fillable = [
         'show_id',
         'document_type',

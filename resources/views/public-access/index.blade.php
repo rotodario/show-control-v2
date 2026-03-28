@@ -7,17 +7,17 @@
         @endif
 
         <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Acceso compartido</p>
-            <h1 class="mt-2 text-3xl font-semibold text-slate-900">{{ \App\Models\SharedAccess::ROLE_LABELS[$grant->role] ?? $grant->role }}</h1>
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">{{ __('ui.shared_access') }}</p>
+            <h1 class="mt-2 text-3xl font-semibold text-slate-900">{{ \App\Models\SharedAccess::translatedRoleLabel($grant->role) }}</h1>
             <p class="mt-2 text-sm text-slate-500">
-                {{ $grant->label ?: 'Enlace compartido' }} · {{ $grant->tour?->name ?: 'Todas las giras' }}
+                {{ $grant->label ?: __('ui.shared_link') }} &middot; {{ $grant->tour?->name ?: __('ui.all_tours') }}
             </p>
         </div>
 
         @if ($permissions['create_shows'])
             <div class="mt-6 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-                <h2 class="text-lg font-semibold text-slate-900">Crear bolo</h2>
-                <p class="mt-1 text-sm text-slate-500">Disponible para Project Manager.</p>
+                <h2 class="text-lg font-semibold text-slate-900">{{ __('ui.create_show') }}</h2>
+                <p class="mt-1 text-sm text-slate-500">{{ __('ui.available_for_project_manager') }}</p>
 
                 <div class="mt-6">
                     <x-validation-summary />
@@ -29,9 +29,9 @@
                     <div class="grid gap-4 lg:grid-cols-2">
                         @if (! $grant->tour_id)
                             <div>
-                                <x-input-label for="tour_id" value="Gira" />
+                                <x-input-label for="tour_id" :value="__('ui.tour')" />
                                 <select id="tour_id" name="tour_id" class="mt-1 block w-full rounded-2xl border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500">
-                                    <option value="">Sin gira</option>
+                                    <option value="">{{ __('ui.no_tour') }}</option>
                                     @foreach ($tours as $tour)
                                         <option value="{{ $tour->id }}" @selected((string) old('tour_id') === (string) $tour->id)>{{ $tour->name }}</option>
                                     @endforeach
@@ -40,17 +40,17 @@
                             </div>
                         @endif
                         <div>
-                            <x-input-label for="name" value="Nombre del bolo" />
+                            <x-input-label for="name" :value="__('ui.show_name')" />
                             <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name')" required />
                             <x-input-error class="mt-2" :messages="$errors->get('name')" />
                         </div>
                         <div>
-                            <x-input-label for="date" value="Fecha" />
+                            <x-input-label for="date" :value="__('ui.date')" />
                             <x-text-input id="date" name="date" type="date" class="mt-1 block w-full" :value="old('date')" required />
                             <x-input-error class="mt-2" :messages="$errors->get('date')" />
                         </div>
                         <div>
-                            <x-input-label for="status" value="Estado" />
+                            <x-input-label for="status" :value="__('ui.default_show_status')" />
                             <select id="status" name="status" class="mt-1 block w-full rounded-2xl border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500">
                                 @foreach ($statusOptions as $value => $label)
                                     <option value="{{ $value }}" @selected(old('status', array_key_first($statusOptions)) === $value)>{{ $label }}</option>
@@ -59,12 +59,12 @@
                             <x-input-error class="mt-2" :messages="$errors->get('status')" />
                         </div>
                         <div>
-                            <x-input-label for="city" value="Ciudad" />
+                            <x-input-label for="city" :value="__('ui.city')" />
                             <x-text-input id="city" name="city" type="text" class="mt-1 block w-full" :value="old('city')" required />
                             <x-input-error class="mt-2" :messages="$errors->get('city')" />
                         </div>
                         <div>
-                            <x-input-label for="venue" value="Venue" />
+                            <x-input-label for="venue" :value="__('ui.venue')" />
                             <x-text-input id="venue" name="venue" type="text" class="mt-1 block w-full" :value="old('venue')" />
                             <x-input-error class="mt-2" :messages="$errors->get('venue')" />
                         </div>
@@ -72,7 +72,7 @@
 
                     <div class="flex justify-end">
                         <button type="submit" class="inline-flex items-center justify-center rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800">
-                            Guardar bolo
+                            {{ __('ui.save_show') }}
                         </button>
                     </div>
                 </form>
@@ -82,56 +82,48 @@
         <div class="mt-6 grid gap-4">
             @forelse ($shows as $show)
                 <a href="{{ route('public-access.shows.show', [$grant->token, $show]) }}" class="block w-full overflow-hidden rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm transition hover:border-sky-300 hover:bg-sky-50/40">
-                    @php
-                        $statusClasses = match ($show->status) {
-                            'confirmed' => 'bg-emerald-100 text-emerald-700',
-                            'closed' => 'bg-slate-200 text-slate-700',
-                            'cancelled' => 'bg-rose-100 text-rose-700',
-                            default => 'bg-amber-100 text-amber-700',
-                        };
-                    @endphp
                     <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                         <div class="min-w-0">
                             <div class="flex flex-wrap items-center gap-2">
                                 <h2 class="truncate text-xl font-semibold text-slate-900">{{ $show->name }}</h2>
-                                <span class="rounded-full px-3 py-1 text-xs font-medium {{ $statusClasses }}">{{ $statusOptions[$show->status] ?? $show->status }}</span>
+                                <span class="rounded-full px-3 py-1 text-xs font-medium {{ $show->currentStatusBadgeClasses() }}">{{ $show->translatedCurrentStatus() }}</span>
                                 @if ($show->tour)
                                     <span class="rounded-full px-3 py-1 text-xs font-semibold text-white shadow-sm" style="background-color: {{ $show->tour->color }}">
                                         {{ $show->tour->name }}
                                     </span>
                                 @endif
                                 @if (($showAlerts[$show->id] ?? []) !== [])
-                                    <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">{{ count($showAlerts[$show->id]) }} alertas</span>
+                                    <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">{{ __('ui.alerts_count', ['count' => count($showAlerts[$show->id])]) }}</span>
                                 @endif
                                 @if (($unreadMessageCounts[$show->id] ?? 0) > 0)
-                                    <span class="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">{{ $unreadMessageCounts[$show->id] }} mensajes nuevos</span>
+                                    <span class="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">{{ __('ui.new_messages_count', ['count' => $unreadMessageCounts[$show->id]]) }}</span>
                                 @endif
                             </div>
-                            <p class="mt-2 text-sm text-slate-500">{{ $show->date->format('d/m/Y') }} · {{ $show->city }} · {{ $show->venue ?: 'Venue pendiente' }}</p>
+                            <p class="mt-2 text-sm text-slate-500">{{ $show->date->format('d/m/Y') }} &middot; {{ $show->city }} &middot; {{ $show->venue ?: __('ui.pending_venue') }}</p>
                             @unless ($show->tour)
-                                <p class="mt-2 text-sm text-slate-600">Sin gira</p>
+                                <p class="mt-2 text-sm text-slate-600">{{ __('ui.no_tour') }}</p>
                             @endunless
                             <div class="mt-4 flex flex-wrap gap-2 text-xs font-medium text-slate-500">
                                 @foreach ([
-                                    'lighting_validated' => 'Luces',
-                                    'sound_validated' => 'Sonido',
-                                    'space_validated' => 'Espacio',
-                                    'general_validated' => 'General',
+                                    'lighting_validated' => __('ui.lighting'),
+                                    'sound_validated' => __('ui.sound'),
+                                    'space_validated' => __('ui.space'),
+                                    'general_validated' => __('ui.general'),
                                 ] as $field => $label)
                                     <span class="rounded-full px-3 py-1 {{ $show->{$field} ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
-                                        {{ $label }} {{ $show->{$field} ? 'OK' : 'pendiente' }}
+                                        {{ $label }} {{ $show->{$field} ? __('ui.ok') : __('ui.pending') }}
                                     </span>
                                 @endforeach
                             </div>
                         </div>
                         <div class="text-xs text-slate-400">
-                            Abrir ficha
+                            {{ __('ui.open_record') }}
                         </div>
                     </div>
                 </a>
             @empty
                 <div class="rounded-[2rem] border border-dashed border-slate-300 bg-white p-10 text-center text-sm text-slate-500">
-                    No hay bolos visibles para este acceso.
+                    {{ __('ui.no_visible_shows_for_access') }}
                 </div>
             @endforelse
         </div>

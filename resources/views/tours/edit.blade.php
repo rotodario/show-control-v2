@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Giras</p>
-            <h2 class="text-2xl font-semibold text-slate-900">Editar {{ $tour->name }}</h2>
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">{{ __('ui.tours') }}</p>
+            <h2 class="text-2xl font-semibold text-slate-900">{{ __('ui.edit_item', ['name' => $tour->name]) }}</h2>
         </div>
     </x-slot>
 

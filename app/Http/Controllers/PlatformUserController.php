@@ -33,7 +33,7 @@ class PlatformUserController extends Controller
         if ($actor->is($user) && ! $targetActive) {
             return redirect()
                 ->route('platform.users.index')
-                ->with('platform_error', 'No puedes desactivar tu propia cuenta.');
+                ->with('platform_error', __('ui.platform_users_cannot_deactivate_self'));
         }
 
         $currentSuperAdminCount = User::role('super_admin')->count();
@@ -45,7 +45,7 @@ class PlatformUserController extends Controller
         ) {
             return redirect()
                 ->route('platform.users.index')
-                ->with('platform_error', 'Debe existir al menos un super admin activo.');
+                ->with('platform_error', __('ui.platform_users_last_super_admin'));
         }
 
         $user->syncRoles([$targetRole]);
@@ -55,6 +55,6 @@ class PlatformUserController extends Controller
 
         return redirect()
             ->route('platform.users.index')
-            ->with('platform_status', 'Usuario actualizado.');
+            ->with('platform_status', __('ui.platform_users_saved'));
     }
 }

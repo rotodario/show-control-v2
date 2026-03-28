@@ -26,12 +26,12 @@
         @endunless
         @stack('styles')
     </head>
-    <body class="min-h-screen bg-slate-100 font-sans text-slate-900 antialiased transition-colors">
-        <div class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.12),_transparent_35%),linear-gradient(180deg,_#f8fafc_0%,_#eef2ff_100%)] transition-colors">
+    <body class="min-h-screen bg-slate-100 font-sans text-slate-900 antialiased transition-colors dark:bg-slate-950 dark:text-slate-100">
+        <div class="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.12),_transparent_35%),linear-gradient(180deg,_#f8fafc_0%,_#eef2ff_100%)] transition-colors dark:bg-[radial-gradient(circle_at_top,_rgba(14,165,233,0.12),_transparent_35%),linear-gradient(180deg,_#020617_0%,_#0f172a_100%)]">
             @include('layouts.navigation')
 
             @if (isset($header))
-                <header class="border-b border-white/70 bg-white/80 backdrop-blur transition-colors">
+                <header class="border-b border-white/70 bg-white/80 backdrop-blur transition-colors dark:border-slate-800 dark:bg-slate-950/80">
                     <div class="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
                         {{ $header }}
                     </div>
@@ -42,8 +42,8 @@
                 {{ $slot }}
             </main>
 
-            <footer class="border-t border-white/70 bg-white/70 backdrop-blur transition-colors">
-                <div class="mx-auto max-w-7xl px-4 py-4 text-center text-xs text-slate-500 sm:px-6 lg:px-8">
+            <footer class="border-t border-slate-200/70 bg-transparent transition-colors dark:border-slate-800/60">
+                <div class="mx-auto max-w-7xl px-4 py-4 text-center text-xs text-slate-500 sm:px-6 lg:px-8 dark:text-slate-400">
                     {{ __('ui.footer', ['year' => now()->year]) }}
                 </div>
             </footer>

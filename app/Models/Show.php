@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Carbon\CarbonInterface;
 
 class Show extends Model
 {
@@ -25,6 +26,79 @@ class Show extends Model
         'sleeper' => 'Sleeper',
         'plane' => 'Avion',
     ];
+
+    public static function translatedStatusOptions(): array
+    {
+        return [
+            'tentative' => __('ui.show_status_tentative'),
+            'confirmed' => __('ui.show_status_confirmed'),
+            'closed' => __('ui.show_status_closed'),
+            'cancelled' => __('ui.show_status_cancelled'),
+        ];
+    }
+
+    public static function translatedTravelModeOptions(): array
+    {
+        return [
+            'car' => __('ui.travel_mode_car'),
+            'van' => __('ui.travel_mode_van'),
+            'sleeper' => __('ui.travel_mode_sleeper'),
+            'plane' => __('ui.travel_mode_plane'),
+        ];
+    }
+
+    public static function statusBadgeClasses(?string $status): string
+    {
+        return match ($status) {
+            'confirmed' => 'bg-emerald-100 text-emerald-700',
+            'closed' => 'bg-slate-900 text-white',
+            'cancelled' => 'bg-rose-100 text-rose-700',
+            default => 'bg-amber-100 text-amber-700',
+        };
+    }
+
+    public static function statusDotClasses(?string $status): string
+    {
+        return match ($status) {
+            'confirmed' => 'bg-emerald-500',
+            'closed' => 'bg-slate-900',
+            'cancelled' => 'bg-rose-500',
+            default => 'bg-amber-400',
+        };
+    }
+
+    public function currentStatus(?CarbonInterface $today = null): string
+    {
+        if ($this->status === 'cancelled') {
+            return 'cancelled';
+        }
+
+        $today ??= now()->startOfDay();
+        $showDate = $this->date?->copy()->startOfDay();
+
+        if ($showDate && $showDate->lt($today)) {
+            return 'closed';
+        }
+
+        return $this->status ?: 'tentative';
+    }
+
+    public function translatedCurrentStatus(?CarbonInterface $today = null): string
+    {
+        $status = $this->currentStatus($today);
+
+        return self::translatedStatusOptions()[$status] ?? $status;
+    }
+
+    public function currentStatusBadgeClasses(?CarbonInterface $today = null): string
+    {
+        return self::statusBadgeClasses($this->currentStatus($today));
+    }
+
+    public function currentStatusDotClasses(?CarbonInterface $today = null): string
+    {
+        return self::statusDotClasses($this->currentStatus($today));
+    }
 
     protected $fillable = [
         'owner_id',

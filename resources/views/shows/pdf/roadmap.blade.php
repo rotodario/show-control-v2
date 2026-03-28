@@ -1,8 +1,8 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ app()->getLocale() }}">
     <head>
         <meta charset="utf-8">
-        <title>Hoja de ruta - {{ $show->name }}</title>
+        <title>{{ __('ui.roadmap') }} - {{ $show->name }}</title>
         @php
             $primaryColor = $pdfSettings->primary_color ?: '#0f172a';
             $brandName = $pdfSettings->brand_name ?: ($show->tour?->name ?: 'Show Control');
@@ -224,27 +224,27 @@
                 <table class="header-table">
                     <tr>
                         <td class="header-main">
-                            <div class="eyebrow">Hoja de ruta</div>
+                            <div class="eyebrow">{{ __('ui.roadmap') }}</div>
                             <div style="font-size: 11px; color: #334155; margin-bottom: 8px; font-weight: bold;">{{ $brandName }}</div>
                             <h1>{{ $show->name }}</h1>
                             <div class="subtitle">
-                                {{ $show->date->format('d/m/Y') }} - {{ $show->city }} - {{ $show->venue ?: 'Venue pendiente' }}
+                                {{ $show->date->format('d/m/Y') }} - {{ $show->city }} - {{ $show->venue ?: __('ui.pending_venue') }}
                             </div>
                             @if ($headerText)
                                 <div style="margin-top: 10px; color: #334155; font-size: 11px;">{{ $headerText }}</div>
                             @endif
                             <div style="margin-top: 12px;">
-                                <span class="badge">{{ $statusOptions[$show->status] ?? $show->status }}</span>
-                                <span class="badge">{{ $show->tour?->name ?: 'Sin gira' }}</span>
+                                <span class="badge">{{ $show->translatedCurrentStatus() }}</span>
+                                <span class="badge">{{ $show->tour?->name ?: __('ui.no_tour') }}</span>
                             </div>
                         </td>
                         <td class="header-side">
                             <div class="contact-box">
-                                <div class="contact-title">Contacto</div>
-                                <div class="contact-line"><strong>Nombre:</strong> {{ $show->contact_name ?: '-' }}</div>
-                                <div class="contact-line"><strong>Rol:</strong> {{ $show->contact_role ?: '-' }}</div>
-                                <div class="contact-line"><strong>Tel:</strong> {{ $show->contact_phone ?: '-' }}</div>
-                                <div class="contact-line"><strong>Email:</strong> {{ $show->contact_email ?: '-' }}</div>
+                                <div class="contact-title">{{ __('ui.contact') }}</div>
+                                <div class="contact-line"><strong>{{ __('ui.name') }}:</strong> {{ $show->contact_name ?: '-' }}</div>
+                                <div class="contact-line"><strong>{{ __('ui.role') }}:</strong> {{ $show->contact_role ?: '-' }}</div>
+                                <div class="contact-line"><strong>{{ __('ui.phone') }}:</strong> {{ $show->contact_phone ?: '-' }}</div>
+                                <div class="contact-line"><strong>{{ __('ui.email') }}:</strong> {{ $show->contact_email ?: '-' }}</div>
                             </div>
                         </td>
                     </tr>
@@ -253,7 +253,7 @@
 
             @if ($alerts !== [])
                 <div class="section">
-                    <h2>Alertas</h2>
+                    <h2>{{ __('ui.alerts') }}</h2>
                     <div class="alerts">
                         @foreach ($alerts as $alert)
                             <div class="alert-item">
@@ -267,37 +267,37 @@
 
             <div class="section">
                 <div class="card">
-                    <div class="label">Venue</div>
-                    <div class="value">{{ $show->venue ?: 'Pendiente' }}</div>
+                    <div class="label">{{ __('ui.venue') }}</div>
+                    <div class="value">{{ $show->venue ?: __('ui.pending_capitalized') }}</div>
                 </div>
                 <div class="card">
-                    <div class="label">Ruta al venue</div>
+                    <div class="label">{{ __('ui.route_to_venue') }}</div>
                     <table class="route-grid">
                         <tr>
                             <td>
-                                <div class="label">Modo de viaje</div>
+                                <div class="label">{{ __('ui.travel_mode') }}</div>
                                 <div class="body-text">{{ $travelModeOptions[$show->travel_mode ?: 'van'] ?? ($show->travel_mode ?: 'van') }}</div>
                             </td>
                             <td></td>
                         </tr>
                         <tr>
                             <td>
-                                <div class="label">Origen</div>
-                                <div class="body-text">{{ $travelRoute['origin'] ?: 'Pendiente' }}</div>
+                                <div class="label">{{ __('ui.origin') }}</div>
+                                <div class="body-text">{{ $travelRoute['origin'] ?: __('ui.pending_capitalized') }}</div>
                             </td>
                             <td>
-                                <div class="label">Destino</div>
-                                <div class="body-text">{{ $travelRoute['destination'] ?: 'Pendiente' }}</div>
+                                <div class="label">{{ __('ui.destination') }}</div>
+                                <div class="body-text">{{ $travelRoute['destination'] ?: __('ui.pending_capitalized') }}</div>
                             </td>
                         </tr>
                         @if (! empty($travelRoute['available']))
                             <tr>
                                 <td>
-                                    <div class="label">Tiempo estimado</div>
+                                    <div class="label">{{ __('ui.estimated_time') }}</div>
                                     <div class="value">{{ $travelRoute['duration_text'] }}</div>
                                 </td>
                                 <td>
-                                    <div class="label">Distancia</div>
+                                    <div class="label">{{ __('ui.distance') }}</div>
                                     <div class="value">{{ $travelRoute['distance_text'] }}</div>
                                 </td>
                             </tr>
@@ -305,52 +305,52 @@
                     </table>
 
                     @if (! empty($travelRoute['available']))
-                        <div class="body-text">Abrir ruta: {{ $travelRoute['directions_url'] }}</div>
+                        <div class="body-text">{{ __('ui.open_route') }}: {{ $travelRoute['directions_url'] }}</div>
                     @elseif (($travelRoute['reason'] ?? null) === 'plane_mode')
-                        <div class="body-text">Modo avion seleccionado. No se calcula ruta por carretera para este bolo.</div>
+                        <div class="body-text">{{ __('ui.plane_mode_route_notice') }}</div>
                         <table class="route-grid">
                             <tr>
                                 <td>
-                                    <div class="label">Origen vuelo</div>
-                                    <div class="body-text">{{ $show->flight_origin ?: 'Pendiente' }}</div>
+                                    <div class="label">{{ __('ui.flight_origin') }}</div>
+                                    <div class="body-text">{{ $show->flight_origin ?: __('ui.pending_capitalized') }}</div>
                                 </td>
                                 <td>
-                                    <div class="label">Destino vuelo</div>
-                                    <div class="body-text">{{ $show->flight_destination ?: 'Pendiente' }}</div>
+                                    <div class="label">{{ __('ui.flight_destination') }}</div>
+                                    <div class="body-text">{{ $show->flight_destination ?: __('ui.pending_capitalized') }}</div>
                                 </td>
                             </tr>
                             <tr>
                                 <td>
-                                    <div class="label">Duracion estimada</div>
-                                    <div class="body-text">{{ $show->flight_duration_estimate ?: 'Pendiente' }}</div>
+                                    <div class="label">{{ __('ui.estimated_duration') }}</div>
+                                    <div class="body-text">{{ $show->flight_duration_estimate ?: __('ui.pending_capitalized') }}</div>
                                 </td>
                                 <td></td>
                             </tr>
                         </table>
-                        <div class="body-text">{{ $show->flight_notes ?: 'Sin notas de vuelo.' }}</div>
+                        <div class="body-text">{{ $show->flight_notes ?: __('ui.no_flight_notes') }}</div>
                     @elseif (($travelRoute['reason'] ?? null) === 'missing_addresses')
-                        <div class="body-text">Falta origen de viaje o una direccion de venue suficiente para calcular la ruta.</div>
+                        <div class="body-text">{{ __('ui.missing_addresses_notice') }}</div>
                     @elseif (($travelRoute['reason'] ?? null) === 'geocoding_failed')
-                        <div class="body-text">No se han localizado correctamente las direcciones para calcular la ruta.</div>
+                        <div class="body-text">{{ __('ui.pdf_route_geocoding_failed') }}</div>
                     @else
-                        <div class="body-text">No se ha podido generar la ruta en este momento.</div>
+                        <div class="body-text">{{ __('ui.pdf_route_unavailable') }}</div>
                     @endif
                 </div>
                 <div class="card">
-                    <div class="label">Notas del espacio</div>
+                    <div class="label">{{ __('ui.space_notes') }}</div>
                     <div class="body-text markdown">
                         {!! $show->space_notes
                             ? \Illuminate\Support\Str::markdown($show->space_notes, [
                                 'html_input' => 'strip',
                                 'allow_unsafe_links' => false,
                             ])
-                            : '<p>Sin notas del espacio.</p>' !!}
+                            : '<p>'.e(__('ui.no_space_notes')).'</p>' !!}
                     </div>
                 </div>
             </div>
 
             <div class="section">
-                <h2>Notas generales</h2>
+                <h2>{{ __('ui.general_notes') }}</h2>
                 <div class="card">
                     <div class="body-text markdown">
                         {!! $show->general_notes
@@ -358,22 +358,22 @@
                                 'html_input' => 'strip',
                                 'allow_unsafe_links' => false,
                             ])
-                            : '<p>Sin notas generales.</p>' !!}
+                            : '<p>'.e(__('ui.no_general_notes')).'</p>' !!}
                     </div>
                 </div>
             </div>
 
             <div class="section">
-                <h2>Horarios</h2>
+                <h2>{{ __('ui.schedules') }}</h2>
                 <table class="schedule">
                     @foreach ([
-                        'Montaje' => $show->getRawOriginal('load_in_at'),
-                        'Comida' => $show->getRawOriginal('meal_at'),
-                        'Pruebas' => $show->getRawOriginal('soundcheck_at'),
-                        'Apertura de puertas' => $show->getRawOriginal('doors_at'),
+                        __('ui.load_in') => $show->getRawOriginal('load_in_at'),
+                        __('ui.meal') => $show->getRawOriginal('meal_at'),
+                        __('ui.soundcheck') => $show->getRawOriginal('soundcheck_at'),
+                        __('ui.doors') => $show->getRawOriginal('doors_at'),
                         'Show' => $show->getRawOriginal('show_at'),
-                        'Fin show' => $show->getRawOriginal('show_end_at'),
-                        'Desmontaje' => $show->getRawOriginal('load_out_at'),
+                        __('ui.show_end') => $show->getRawOriginal('show_end_at'),
+                        __('ui.load_out') => $show->getRawOriginal('load_out_at'),
                     ] as $label => $value)
                         <tr>
                             <td>{{ $label }}</td>
@@ -385,11 +385,11 @@
 
             @if ($show->tour && $show->tour->contacts->isNotEmpty())
                 <div class="section">
-                    <h2>Contactos de gira</h2>
+                    <h2>{{ __('ui.tour_contacts') }}</h2>
                     @foreach ($show->tour->contacts as $contact)
                         <div class="card">
                             <div class="body-text">
-                                <strong>{{ $contact->name }}</strong> - {{ $contact->role ?: 'Sin rol' }} - {{ $contact->phone ?: 'Sin telefono' }} - {{ $contact->email ?: 'Sin email' }}
+                                <strong>{{ $contact->name }}</strong> - {{ $contact->role ?: __('ui.no_role') }} - {{ $contact->phone ?: __('ui.no_phone') }} - {{ $contact->email ?: __('ui.no_email') }}
                             </div>
                             @if ($contact->notes)
                                 <div class="body-text" style="margin-top: 8px;">{{ $contact->notes }}</div>
@@ -404,7 +404,7 @@
                     <div style="margin-bottom: 6px;">{{ $footerText }}</div>
                 @endif
                 @if ($pdfSettings->show_generated_at)
-                    <div>Generado el {{ now()->format('d/m/Y H:i') }}</div>
+                    <div>{{ __('ui.generated_at') }} {{ now()->format('d/m/Y H:i') }}</div>
                 @endif
             </div>
         </div>

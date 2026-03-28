@@ -1,8 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
         <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Bolos</p>
-            <h2 class="text-2xl font-semibold text-slate-900">Editar {{ $show->name }}</h2>
+            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">{{ __('ui.shows') }}</p>
+            <h2 class="text-2xl font-semibold text-slate-900">{{ __('ui.edit_item', ['name' => $show->name]) }}</h2>
         </div>
     </x-slot>
 
@@ -19,66 +19,66 @@
             <div id="show-documents" class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
                 <div class="flex items-center justify-between gap-3">
                     <div>
-                        <h3 class="text-lg font-semibold text-slate-900">Documentos del bolo</h3>
-                        <p class="text-sm text-slate-500">La subida y gestion de adjuntos se hace desde editar.</p>
+                        <h3 class="text-lg font-semibold text-slate-900">{{ __('ui.show_documents') }}</h3>
+                        <p class="text-sm text-slate-500">{{ __('ui.show_documents_help') }}</p>
                     </div>
-                    <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">{{ $show->documents()->count() }} docs</span>
+                    <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">{{ __('ui.docs_count', ['count' => $show->documents()->count()]) }}</span>
                 </div>
 
                 <div class="mt-6 grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
                     <div class="space-y-4">
                         @forelse ($show->documents()->with('uploader')->latest()->get() as $document)
                             <article class="rounded-2xl border border-slate-200 p-4">
-                                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ $document->document_type }}</p>
+                                <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ \App\Models\ShowDocument::translatedTypeLabel($document->document_type) }}</p>
                                 <h4 class="mt-2 text-base font-semibold text-slate-900">{{ $document->title }}</h4>
                                 <p class="mt-1 break-all text-sm text-slate-500">{{ $document->original_name }}</p>
-                                <p class="mt-2 text-xs text-slate-400">{{ $document->uploader?->name ?: 'Sin usuario' }} · {{ $document->created_at->format('d/m/Y H:i') }}</p>
+                                <p class="mt-2 text-xs text-slate-400">{{ $document->uploader?->name ?: __('ui.no_user') }} · {{ $document->created_at->format('d/m/Y H:i') }}</p>
                                 <div class="mt-4 flex flex-col gap-2 sm:flex-row">
                                     <a href="{{ route('shows.documents.show', [$show, $document]) }}" class="inline-flex items-center justify-center rounded-full bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800">
-                                        Abrir o descargar
+                                        {{ __('ui.open_or_download') }}
                                     </a>
                                     <a href="{{ route('shows.documents.edit', [$show, $document]) }}" class="inline-flex items-center justify-center rounded-full border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
-                                        Editar
+                                        {{ __('ui.edit') }}
                                     </a>
-                                    <form method="POST" action="{{ route('shows.documents.destroy', [$show, $document]) }}" onsubmit="return confirm('¿Eliminar este documento del bolo?');">
+                                    <form method="POST" action="{{ route('shows.documents.destroy', [$show, $document]) }}" onsubmit="return confirm('{{ __('ui.confirm_delete_show_document') }}');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="inline-flex w-full items-center justify-center rounded-full border border-rose-200 px-3 py-2 text-xs font-semibold text-rose-700 transition hover:bg-rose-50 sm:w-auto">
-                                            Borrar
+                                            {{ __('ui.delete') }}
                                         </button>
                                     </form>
                                 </div>
                             </article>
                         @empty
                             <div class="rounded-2xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">
-                                Todavia no hay documentos en este bolo.
+                                {{ __('ui.no_show_documents_yet') }}
                             </div>
                         @endforelse
                     </div>
 
                     <div class="rounded-3xl bg-slate-50 p-5">
-                        <h4 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Subir documento</h4>
+                        <h4 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('ui.upload_document') }}</h4>
                         <form method="POST" action="{{ route('shows.documents.store', $show) }}" enctype="multipart/form-data" class="mt-4 space-y-4">
                             @csrf
                             <div>
-                                <x-input-label for="show_document_type" value="Tipo de documento" />
+                                <x-input-label for="show_document_type" :value="__('ui.document_type')" />
                                 <select id="show_document_type" name="document_type" class="mt-1 block w-full rounded-2xl border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500">
                                     @foreach (\App\Models\ShowDocument::TYPES as $type)
-                                        <option value="{{ $type }}" @selected(old('document_type') === $type)>{{ $type }}</option>
+                                        <option value="{{ $type }}" @selected(old('document_type') === $type)>{{ \App\Models\ShowDocument::translatedTypeLabel($type) }}</option>
                                     @endforeach
                                 </select>
                             </div>
                             <div>
-                                <x-input-label for="show_document_title" value="Titulo" />
+                                <x-input-label for="show_document_title" :value="__('ui.title')" />
                                 <x-text-input id="show_document_title" name="title" type="text" class="mt-1 block w-full" :value="old('title')" />
                             </div>
                             <div>
-                                <x-input-label for="show_document_file" value="Archivo" />
+                                <x-input-label for="show_document_file" :value="__('ui.file')" />
                                 <input id="show_document_file" name="file" type="file" class="mt-1 block w-full rounded-2xl border border-slate-300 bg-white px-3 py-2 text-sm shadow-sm">
                                 <x-input-error class="mt-2" :messages="$errors->get('file')" />
                             </div>
                             <button type="submit" class="inline-flex items-center justify-center rounded-full bg-sky-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-sky-500">
-                                Subir documento
+                                {{ __('ui.upload_document') }}
                             </button>
                         </form>
                     </div>

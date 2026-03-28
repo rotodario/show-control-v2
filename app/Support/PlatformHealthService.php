@@ -16,6 +16,8 @@ class PlatformHealthService
     public function checks(): array
     {
         $databaseOk = true;
+        $installed = $this->installationService->isInstalled();
+        $activeSuperAdmins = User::role('super_admin')->where('is_active', true)->count();
 
         try {
             DB::connection()->getPdo();
@@ -25,34 +27,34 @@ class PlatformHealthService
 
         return [
             [
-                'label' => 'Aplicacion instalada',
-                'ok' => $this->installationService->isInstalled(),
-                'detail' => $this->installationService->isInstalled() ? 'Marcador de instalacion presente.' : 'No se detecta instalacion completa.',
+                'label' => __('ui.health_app_installed'),
+                'ok' => $installed,
+                'detail' => $installed ? __('ui.health_app_installed_ok') : __('ui.health_app_installed_fail'),
             ],
             [
-                'label' => 'Conexion a base de datos',
+                'label' => __('ui.health_database'),
                 'ok' => $databaseOk,
-                'detail' => $databaseOk ? 'Conexion operativa.' : 'No se ha podido abrir la conexion.',
+                'detail' => $databaseOk ? __('ui.health_database_ok') : __('ui.health_database_fail'),
             ],
             [
-                'label' => 'Storage escribible',
+                'label' => __('ui.health_storage_writable'),
                 'ok' => is_writable(storage_path()),
                 'detail' => storage_path(),
             ],
             [
-                'label' => 'Bootstrap cache escribible',
+                'label' => __('ui.health_bootstrap_cache_writable'),
                 'ok' => is_writable(base_path('bootstrap/cache')),
                 'detail' => base_path('bootstrap/cache'),
             ],
             [
-                'label' => 'Carpeta de backups disponible',
+                'label' => __('ui.health_backup_directory'),
                 'ok' => $this->ensureBackupDirectory(),
                 'detail' => storage_path('app/backups'),
             ],
             [
-                'label' => 'Super admin activo',
-                'ok' => User::role('super_admin')->where('is_active', true)->exists(),
-                'detail' => User::role('super_admin')->where('is_active', true)->count().' cuentas activas.',
+                'label' => __('ui.health_active_super_admin'),
+                'ok' => $activeSuperAdmins > 0,
+                'detail' => trans_choice('ui.active_accounts_count', $activeSuperAdmins, ['count' => $activeSuperAdmins]),
             ],
         ];
     }

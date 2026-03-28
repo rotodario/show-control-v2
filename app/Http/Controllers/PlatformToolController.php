@@ -55,12 +55,12 @@ class PlatformToolController extends Controller
         } catch (\Throwable) {
             return redirect()
                 ->route('platform.tools.index')
-                ->with('platform_error', 'No se ha podido restaurar el backup. Revisa el archivo y vuelve a intentarlo.');
+                ->with('platform_error', __('ui.platform_restore_error'));
         }
 
         return redirect()
             ->route('platform.tools.index')
-            ->with('platform_status', 'Backup restaurado correctamente.');
+            ->with('platform_status', __('ui.platform_restore_success'));
     }
 
     private function formatFileSize(int $bytes): string

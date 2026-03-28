@@ -12,7 +12,7 @@
     </x-slot>
 
     <div class="py-8">
-        <div class="mx-auto max-w-5xl space-y-6 px-4 sm:px-6 lg:px-8">
+        <div class="mx-auto max-w-7xl space-y-6 px-4 sm:px-6 lg:px-8">
             @include('platform.partials.nav')
             <x-status-message />
 

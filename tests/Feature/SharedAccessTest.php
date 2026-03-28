@@ -391,7 +391,7 @@ class SharedAccessTest extends TestCase
             'section' => 'lighting',
             'message' => 'Necesito confirmar medidas de escenario.',
             'shared_access_id' => $grant->id,
-            'author_name' => 'Acceso luces (Lighting)',
+            'author_name' => 'Acceso luces (Iluminacion)',
         ]);
 
         $spaceResponse = $this->post(route('public-access.section-messages.store', [$grant->token, $show]), [

@@ -26,8 +26,8 @@
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @endunless
     </head>
-    <body class="font-sans text-gray-900 antialiased transition-colors">
-        <div class="min-h-screen flex flex-col bg-gray-100 pt-6 transition-colors sm:pt-0">
+    <body class="font-sans text-gray-900 antialiased transition-colors dark:bg-slate-950 dark:text-slate-100">
+        <div class="min-h-screen flex flex-col bg-gray-100 pt-6 transition-colors dark:bg-slate-950 sm:pt-0">
             <div class="flex flex-1 flex-col items-center justify-center px-4">
             <div>
                 <a href="/">
@@ -35,12 +35,12 @@
                 </a>
             </div>
 
-            <div class="mt-6 w-full overflow-hidden bg-white px-6 py-4 shadow-md transition-colors sm:max-w-md sm:rounded-lg">
+            <div class="mt-6 w-full overflow-hidden bg-white px-6 py-4 shadow-md transition-colors dark:bg-slate-900 sm:max-w-md sm:rounded-lg">
                 {{ $slot }}
             </div>
             </div>
 
-            <footer class="px-4 py-4 text-center text-xs text-slate-500">
+            <footer class="border-t border-slate-200/70 bg-transparent px-4 py-4 text-center text-xs text-slate-500 transition-colors dark:border-slate-800/60 dark:text-slate-400">
                 {{ __('ui.footer', ['year' => now()->year]) }}
             </footer>
         </div>

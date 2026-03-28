@@ -5,7 +5,7 @@
 
 <div id="section-chat-{{ $section }}" class="mt-6 border-t border-slate-200 pt-5">
     <div class="flex items-center justify-between gap-3">
-        <h4 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">Chat interno</h4>
+        <h4 class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">{{ __('ui.internal_chat') }}</h4>
         <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">{{ $messages->count() }}</span>
     </div>
 
@@ -28,13 +28,13 @@
                     <span>{{ $message->created_at->format('d/m/Y H:i') }}</span>
                     @if ($unreadMessageIds->contains($message->id))
                         <span>&middot;</span>
-                        <span class="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-bold tracking-[0.18em] text-sky-700">Nuevo</span>
+                        <span class="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-bold tracking-[0.18em] text-sky-700">{{ __('ui.new') }}</span>
                     @endif
                 </div>
             </article>
         @empty
             <div class="rounded-2xl border border-dashed border-slate-300 p-5 text-sm text-slate-500">
-                Todavia no hay mensajes en este apartado.
+                {{ __('ui.no_messages_in_section_yet') }}
             </div>
         @endforelse
     </div>
@@ -44,14 +44,14 @@
         <input type="hidden" name="section" value="{{ $section }}">
         <div>
             <div class="flex items-center justify-between gap-3">
-                <x-input-label for="message-{{ $section }}" value="Nuevo mensaje" />
+                <x-input-label for="message-{{ $section }}" :value="__('ui.new_message')" />
                 <div class="relative">
                     <button
                         type="button"
                         @click="open = !open"
                         class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:border-sky-300 hover:text-slate-900"
                     >
-                        Emoji
+                        {{ __('ui.emoji') }}
                     </button>
                     <div
                         x-show="open"
@@ -78,7 +78,7 @@
                 name="message"
                 rows="3"
                 class="mt-1 block w-full rounded-2xl border-slate-300 shadow-sm focus:border-sky-500 focus:ring-sky-500"
-                placeholder="Escribe un mensaje para este apartado..."
+                placeholder="{{ __('ui.section_message_placeholder') }}"
             >{{ old('section') === $section ? old('message') : '' }}</textarea>
             @if (old('section') === $section)
                 <x-input-error class="mt-2" :messages="$errors->get('message')" />
@@ -86,7 +86,7 @@
             @endif
         </div>
         <button type="submit" class="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
-            Enviar mensaje
+            {{ __('ui.send_message') }}
         </button>
     </form>
 </div>

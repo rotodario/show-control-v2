@@ -21,7 +21,7 @@ class SharedAccessController extends Controller
                 ->latest()
                 ->get(),
             'tours' => Tour::ownedBy($userId)->orderBy('name')->get(),
-            'roles' => SharedAccess::ROLE_LABELS,
+            'roles' => SharedAccess::translatedRoleLabels(),
         ]);
     }
 
@@ -35,9 +35,10 @@ class SharedAccessController extends Controller
         ActivityLogger::log(
             action: 'shared_access.created',
             detail: sprintf(
-                'Acceso compartido creado: %s · %s',
-                SharedAccess::ROLE_LABELS[$sharedAccess->role] ?? $sharedAccess->role,
-                $sharedAccess->label ?: 'Sin etiqueta'
+                '%s: %s · %s',
+                __('ui.shared_access_created'),
+                SharedAccess::translatedRoleLabel($sharedAccess->role),
+                $sharedAccess->label ?: __('ui.no_label')
             ),
             actor: $request->user(),
             subject: $sharedAccess,
@@ -46,7 +47,7 @@ class SharedAccessController extends Controller
 
         return redirect()
             ->route('shared-accesses.index')
-            ->with('status', 'Acceso compartido creado.');
+            ->with('status', __('ui.shared_access_created'));
     }
 
     public function destroy(SharedAccess $sharedAccess): RedirectResponse
@@ -60,7 +61,8 @@ class SharedAccessController extends Controller
         ActivityLogger::log(
             action: 'shared_access.revoked',
             detail: sprintf(
-                'Acceso compartido revocado: %s',
+                '%s: %s',
+                __('ui.shared_access_revoked'),
                 $sharedAccess->label ?: '#'.$sharedAccess->id
             ),
             actor: request()->user(),
@@ -70,6 +72,6 @@ class SharedAccessController extends Controller
 
         return redirect()
             ->route('shared-accesses.index')
-            ->with('status', 'Acceso compartido revocado.');
+            ->with('status', __('ui.shared_access_revoked'));
     }
 }

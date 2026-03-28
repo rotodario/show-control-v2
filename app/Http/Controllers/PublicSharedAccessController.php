@@ -53,7 +53,7 @@ class PublicSharedAccessController extends Controller
             'unreadMessageCounts' => $showMessageReadService->unreadCountsForSharedAccess($shows->getCollection(), $grant, $visibleChatSections),
             'visibility' => $visibility,
             'permissions' => $permissions,
-            'statusOptions' => Show::STATUS_OPTIONS,
+            'statusOptions' => Show::translatedStatusOptions(),
             'tours' => $grant->tour_id
                 ? collect()
                 : Tour::query()->ownedBy($grant->ownerId())->orderBy('name')->get(),
@@ -85,7 +85,7 @@ class PublicSharedAccessController extends Controller
             'grant' => $grant,
             'show' => $show,
             'alerts' => $showAlertService->alertsForShow($show),
-            'statusOptions' => Show::STATUS_OPTIONS,
+            'statusOptions' => Show::translatedStatusOptions(),
             'visibility' => $sharedAccessService->sectionVisibility($grant),
             'documents' => $sharedAccessService->visibleDocuments($grant, $show->documents),
             'permissions' => $permissions,

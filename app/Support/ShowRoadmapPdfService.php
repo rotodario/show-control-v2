@@ -27,11 +27,11 @@ class ShowRoadmapPdfService
 
         return Pdf::loadView('shows.pdf.roadmap', [
             'show' => $show,
-            'statusOptions' => Show::STATUS_OPTIONS,
+            'statusOptions' => Show::translatedStatusOptions(),
             'alerts' => $alerts,
             'pdfSettings' => $user->pdfSettings ?? new UserPdfSetting(),
             'travelRoute' => $travelRoute,
-            'travelModeOptions' => Show::TRAVEL_MODE_OPTIONS,
+            'travelModeOptions' => Show::translatedTravelModeOptions(),
         ])->setPaper('a4');
     }
 

@@ -36,7 +36,7 @@ class ShowController extends Controller
             'shows' => $shows,
             'tours' => Tour::ownedBy($userId)->orderBy('name')->get(),
             'selectedTourId' => $tourId,
-            'statusOptions' => Show::STATUS_OPTIONS,
+            'statusOptions' => Show::translatedStatusOptions(),
             'showAlerts' => $showAlertService->alertsForCollection($shows->getCollection(), $request->user()),
             'unreadMessageCounts' => $showMessageReadService->unreadCountsForUser($shows->getCollection(), $request->user()),
         ]);
@@ -95,9 +95,17 @@ class ShowController extends Controller
             'selectedDate' => $selectedDate,
             'selectedTourId' => $tourId,
             'showAlerts' => $showAlerts,
-            'statusOptions' => Show::STATUS_OPTIONS,
+            'statusOptions' => Show::translatedStatusOptions(),
             'tours' => Tour::ownedBy($userId)->orderBy('name')->get(),
-            'weekdays' => ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'],
+            'weekdays' => [
+                __('ui.weekday_mon'),
+                __('ui.weekday_tue'),
+                __('ui.weekday_wed'),
+                __('ui.weekday_thu'),
+                __('ui.weekday_fri'),
+                __('ui.weekday_sat'),
+                __('ui.weekday_sun'),
+            ],
         ]);
     }
 
@@ -115,7 +123,7 @@ class ShowController extends Controller
             ]),
             'tours' => Tour::ownedBy(auth()->id())->orderBy('name')->get(),
             'statusOptions' => Show::STATUS_OPTIONS,
-            'travelModeOptions' => Show::TRAVEL_MODE_OPTIONS,
+            'travelModeOptions' => Show::translatedTravelModeOptions(),
         ]);
     }
 
@@ -137,7 +145,7 @@ class ShowController extends Controller
 
         return redirect()
             ->route('shows.show', $show)
-            ->with('status', 'Bolo creado correctamente.');
+            ->with('status', __('ui.show_created'));
     }
 
     public function show(
@@ -155,12 +163,12 @@ class ShowController extends Controller
 
         return view('shows.show', [
             'show' => $show,
-            'statusOptions' => Show::STATUS_OPTIONS,
+            'statusOptions' => Show::translatedStatusOptions(),
             'alerts' => $showAlertService->alertsForShow($show, user: request()->user()),
             'sectionMessages' => $show->sectionMessages->groupBy('section'),
             'unreadMessageIds' => $unreadMessageIds,
             'travelRoute' => $openStreetMapRouteService->routeForShow($show),
-            'travelModeOptions' => Show::TRAVEL_MODE_OPTIONS,
+            'travelModeOptions' => Show::translatedTravelModeOptions(),
         ]);
     }
 
@@ -209,8 +217,8 @@ class ShowController extends Controller
         return redirect()
             ->route('shows.show', $show)
             ->with('status', $sent
-                ? 'Hoja de ruta enviada por mail a los destinatarios configurados.'
-                : 'No se ha enviado la hoja de ruta. Revisa Cuenta > Correo y completa los destinatarios.');
+                ? __('ui.roadmap_mail_sent')
+                : __('ui.roadmap_mail_not_sent'));
     }
 
     public function sendAlertMail(
@@ -232,8 +240,8 @@ class ShowController extends Controller
         return redirect()
             ->route('shows.show', $show)
             ->with('status', $sent
-                ? 'Alerta operativa enviada por mail.'
-                : 'No se ha enviado la alerta. Revisa Cuenta > Correo, los destinatarios de alertas o si este bolo tiene alertas activas.');
+                ? __('ui.alert_mail_sent')
+                : __('ui.alert_mail_not_sent'));
     }
 
     public function edit(Show $show): View
@@ -243,8 +251,8 @@ class ShowController extends Controller
         return view('shows.edit', [
             'show' => $show,
             'tours' => Tour::ownedBy(auth()->id())->orderBy('name')->get(),
-            'statusOptions' => Show::STATUS_OPTIONS,
-            'travelModeOptions' => Show::TRAVEL_MODE_OPTIONS,
+            'statusOptions' => Show::translatedStatusOptions(),
+            'travelModeOptions' => Show::translatedTravelModeOptions(),
             'travelPreview' => session('travel_preview'),
         ]);
     }
@@ -263,7 +271,7 @@ class ShowController extends Controller
             ->route('shows.edit', $show)
             ->withInput()
             ->with('travel_preview', $openStreetMapRouteService->routeForShow($previewShow))
-            ->with('status', 'Ruta calculada. Revisa el resultado y guarda el bolo cuando quieras.');
+            ->with('status', __('ui.route_preview_ready'));
     }
 
     public function update(UpdateShowRequest $request, Show $show): RedirectResponse
@@ -283,7 +291,7 @@ class ShowController extends Controller
 
         return redirect()
             ->route('shows.show', $show)
-            ->with('status', 'Bolo actualizado.');
+            ->with('status', __('ui.show_updated'));
     }
 
     public function destroy(Show $show): RedirectResponse
@@ -306,7 +314,7 @@ class ShowController extends Controller
 
         return redirect()
             ->route('shows.index')
-            ->with('status', 'Bolo eliminado.');
+            ->with('status', __('ui.show_deleted'));
     }
 
     private function payload(StoreShowRequest|UpdateShowRequest $request): array

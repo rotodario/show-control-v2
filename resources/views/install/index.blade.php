@@ -37,7 +37,7 @@
                 @endif
 
                 <div class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                    El instalador aplicara todas las migraciones actuales, configurara el bootstrap seguro de super admin y dejara listas las funciones de bolos, accesos compartidos, alertas, chat interno, PDF, logistica de viaje, preferencias de cuenta, usuarios de plataforma y herramientas de backup basadas en web.
+                    El instalador aplicara todas las migraciones actuales, configurara el bootstrap seguro de super admin y dejara listas las funciones de bolos, accesos compartidos, alertas, chat interno, PDF, logistica de viaje, correo operativo, preferencias de cuenta, multiidioma base `es/en`, usuarios de plataforma y herramientas web de backup.
                 </div>
 
                 <form method="POST" action="{{ route('install.store') }}" class="mt-6 space-y-6">

@@ -28,6 +28,22 @@ class SharedAccess extends Model
         'stage_manager' => 'Stage Manager',
     ];
 
+    public static function translatedRoleLabels(): array
+    {
+        return [
+            'admin' => __('ui.shared_role_admin'),
+            'project_manager' => __('ui.shared_role_project_manager'),
+            'lighting' => __('ui.shared_role_lighting'),
+            'sound' => __('ui.shared_role_sound'),
+            'stage_manager' => __('ui.shared_role_stage_manager'),
+        ];
+    }
+
+    public static function translatedRoleLabel(?string $role): string
+    {
+        return self::translatedRoleLabels()[$role] ?? ($role ?: __('ui.shared_access'));
+    }
+
     protected $fillable = [
         'label',
         'role',
@@ -84,10 +100,10 @@ class SharedAccess extends Model
 
     public function authorLabel(): string
     {
-        $role = self::ROLE_LABELS[$this->role] ?? $this->role;
+        $role = self::translatedRoleLabel($this->role);
 
         return $this->label
             ? "{$this->label} ({$role})"
-            : "Acceso compartido ({$role})";
+            : __('ui.shared_access')." ({$role})";
     }
 }

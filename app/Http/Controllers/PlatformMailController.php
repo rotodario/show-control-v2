@@ -22,6 +22,6 @@ class PlatformMailController extends Controller
 
         return redirect()
             ->route('platform.mail.edit')
-            ->with('status', 'Correo global actualizado.');
+            ->with('status', __('ui.platform_mail_saved'));
     }
 }

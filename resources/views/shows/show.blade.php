@@ -2,34 +2,34 @@
     <x-slot name="header">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <div>
-                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">Ficha de bolo</p>
+                <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">{{ __('ui.show_record') }}</p>
                 <h2 class="text-3xl font-semibold text-slate-900">{{ $show->name }}</h2>
-                <p class="mt-1 text-sm text-slate-500">{{ $show->date->format('d/m/Y') }} · {{ $show->city }} · {{ $show->venue ?: 'Venue pendiente' }}</p>
+                <p class="mt-1 text-sm text-slate-500">{{ $show->date->format('d/m/Y') }} · {{ $show->city }} · {{ $show->venue ?: __('ui.pending_venue') }}</p>
             </div>
             <div class="flex flex-col gap-3 sm:flex-row">
                 <form method="POST" action="{{ route('shows.send-roadmap-mail', $show) }}">
                     @csrf
                     <button type="submit" class="inline-flex items-center justify-center rounded-full border border-emerald-200 px-4 py-2.5 text-sm font-semibold text-emerald-700 transition hover:bg-emerald-50">
-                        Enviar hoja de ruta
+                        {{ __('ui.send_roadmap') }}
                     </button>
                 </form>
                 <form method="POST" action="{{ route('shows.send-alert-mail', $show) }}">
                     @csrf
                     <button type="submit" class="inline-flex items-center justify-center rounded-full border border-amber-200 px-4 py-2.5 text-sm font-semibold text-amber-700 transition hover:bg-amber-50">
-                        Enviar alerta
+                        {{ __('ui.send_alert') }}
                     </button>
                 </form>
                 <a href="{{ route('shows.pdf', $show) }}" target="_blank" class="inline-flex items-center justify-center rounded-full bg-rose-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-rose-500">
-                    Abrir PDF
+                    {{ __('ui.open_pdf') }}
                 </a>
                 <a href="{{ route('shows.pdf', [$show, 'disposition' => 'download']) }}" class="inline-flex items-center justify-center rounded-full border border-rose-200 px-4 py-2.5 text-sm font-semibold text-rose-700 transition hover:bg-rose-50">
-                    Descargar PDF
+                    {{ __('ui.download_pdf') }}
                 </a>
                 <a href="{{ route('shows.edit', $show) }}" class="inline-flex items-center justify-center rounded-full border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
-                    Editar bolo
+                    {{ __('ui.edit_show') }}
                 </a>
                 <a href="{{ route('shows.index') }}" class="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
-                    Volver a bolos
+                    {{ __('ui.back_to_shows') }}
                 </a>
             </div>
         </div>
@@ -45,8 +45,8 @@
                         <div class="rounded-[2rem] border border-amber-200 bg-amber-50 p-6 shadow-sm">
                             <div class="flex items-center justify-between gap-4">
                                 <div>
-                                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-amber-700">Alertas</p>
-                                    <h3 class="mt-1 text-lg font-semibold text-amber-950">Revisiones pendientes para este bolo</h3>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-amber-700">{{ __('ui.alerts') }}</p>
+                                    <h3 class="mt-1 text-lg font-semibold text-amber-950">{{ __('ui.pending_show_reviews') }}</h3>
                                 </div>
                                 <span class="rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700">{{ count($alerts) }}</span>
                             </div>
@@ -63,19 +63,19 @@
 
                     <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
                         <div class="flex flex-wrap gap-2">
-                            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">{{ $statusOptions[$show->status] ?? $show->status }}</span>
-                            <span class="rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-700">{{ $show->tour?->name ?: 'Sin gira' }}</span>
+                            <span class="rounded-full px-3 py-1 text-xs font-medium {{ $show->currentStatusBadgeClasses() }}">{{ $show->translatedCurrentStatus() }}</span>
+                            <span class="rounded-full bg-sky-100 px-3 py-1 text-xs font-medium text-sky-700">{{ $show->tour?->name ?: __('ui.no_tour') }}</span>
                         </div>
 
                         <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                             @foreach ([
-                                'load_in_at' => 'Montaje',
-                                'meal_at' => 'Comida',
-                                'soundcheck_at' => 'Pruebas',
-                                'doors_at' => 'Puertas',
+                                'load_in_at' => __('ui.load_in'),
+                                'meal_at' => __('ui.meal'),
+                                'soundcheck_at' => __('ui.soundcheck'),
+                                'doors_at' => __('ui.doors'),
                                 'show_at' => 'Show',
-                                'show_end_at' => 'Fin show',
-                                'load_out_at' => 'Desmontaje',
+                                'show_end_at' => __('ui.show_end'),
+                                'load_out_at' => __('ui.load_out'),
                             ] as $field => $label)
                                 <div class="rounded-2xl bg-slate-50 p-4">
                                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ $label }}</p>
@@ -87,16 +87,16 @@
 
                     <div class="space-y-6">
                         @foreach ([
-                            'lighting' => 'Iluminacion',
-                            'sound' => 'Sonido',
-                            'space' => 'Espacio / venue',
-                            'general' => 'Notas generales',
+                            'lighting' => __('ui.lighting'),
+                            'sound' => __('ui.sound'),
+                            'space' => __('ui.space_venue'),
+                            'general' => __('ui.general_notes'),
                         ] as $prefix => $label)
                             <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
                                 <div class="flex items-center justify-between gap-4">
                                     <h3 class="text-lg font-semibold text-slate-900">{{ $label }}</h3>
                                     <span class="rounded-full px-3 py-1 text-xs font-medium {{ $show->{$prefix.'_validated'} ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
-                                        {{ $show->{$prefix.'_validated'} ? 'Validado' : 'Pendiente' }}
+                                        {{ $show->{$prefix.'_validated'} ? __('ui.validated') : __('ui.pending_capitalized') }}
                                     </span>
                                 </div>
                                 <div class="mt-4 space-y-3 text-sm leading-6 text-slate-600 [&_p]:my-0 [&_strong]:font-semibold [&_strong]:text-slate-900 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5">
@@ -105,7 +105,7 @@
                                             'html_input' => 'strip',
                                             'allow_unsafe_links' => false,
                                         ])
-                                        : '<p>Sin notas todavia.</p>' !!}
+                                        : '<p>'.e(__('ui.no_notes_yet')).'</p>' !!}
                                 </div>
                                 @include('shows.partials.section-chat', [
                                     'section' => $prefix,
@@ -119,24 +119,24 @@
 
                 <aside class="space-y-6">
                     <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-                        <h3 class="text-lg font-semibold text-slate-900">Contacto</h3>
+                        <h3 class="text-lg font-semibold text-slate-900">{{ __('ui.contact') }}</h3>
                         <div class="mt-4 space-y-2 text-sm text-slate-600">
-                            <p><span class="font-semibold text-slate-900">Nombre:</span> {{ $show->contact_name ?: '-' }}</p>
-                            <p><span class="font-semibold text-slate-900">Rol:</span> {{ $show->contact_role ?: '-' }}</p>
-                            <p><span class="font-semibold text-slate-900">Telefono:</span> {{ $show->contact_phone ?: '-' }}</p>
-                            <p><span class="font-semibold text-slate-900">Email:</span> {{ $show->contact_email ?: '-' }}</p>
+                            <p><span class="font-semibold text-slate-900">{{ __('ui.name') }}:</span> {{ $show->contact_name ?: '-' }}</p>
+                            <p><span class="font-semibold text-slate-900">{{ __('ui.role') }}:</span> {{ $show->contact_role ?: '-' }}</p>
+                            <p><span class="font-semibold text-slate-900">{{ __('ui.phone') }}:</span> {{ $show->contact_phone ?: '-' }}</p>
+                            <p><span class="font-semibold text-slate-900">{{ __('ui.email') }}:</span> {{ $show->contact_email ?: '-' }}</p>
                         </div>
                     </div>
 
                     <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
                         <div class="flex items-start justify-between gap-4">
                             <div>
-                                <h3 class="text-lg font-semibold text-slate-900">Ruta al venue</h3>
-                                <p class="mt-1 text-sm text-slate-500">Trayecto estimado desde el origen configurado para este bolo.</p>
+                                <h3 class="text-lg font-semibold text-slate-900">{{ __('ui.route_to_venue') }}</h3>
+                                <p class="mt-1 text-sm text-slate-500">{{ __('ui.route_to_venue_help') }}</p>
                             </div>
                             @if (! empty($travelRoute['available']))
                                 <a href="{{ $travelRoute['directions_url'] }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center rounded-full border border-sky-200 px-3 py-2 text-xs font-semibold text-sky-700 transition hover:bg-sky-50">
-                                    Abrir ruta
+                                    {{ __('ui.open_route') }}
                                 </a>
                             @endif
                         </div>
@@ -144,16 +144,16 @@
                         <div class="mt-4 space-y-4">
                             <div class="grid gap-3 sm:grid-cols-2">
                                 <div class="rounded-2xl bg-slate-50 p-4">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Modo de viaje</p>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.travel_mode') }}</p>
                                     <p class="mt-2 text-sm font-medium text-slate-900">{{ $travelModeOptions[$show->travel_mode ?: 'van'] ?? ($show->travel_mode ?: 'van') }}</p>
                                 </div>
                                 <div class="rounded-2xl bg-slate-50 p-4">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Origen</p>
-                                    <p class="mt-2 text-sm font-medium text-slate-900">{{ $travelRoute['origin'] ?: 'Pendiente' }}</p>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.origin') }}</p>
+                                    <p class="mt-2 text-sm font-medium text-slate-900">{{ $travelRoute['origin'] ?: __('ui.pending_capitalized') }}</p>
                                 </div>
                                 <div class="rounded-2xl bg-slate-50 p-4">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Destino</p>
-                                    <p class="mt-2 text-sm font-medium text-slate-900">{{ $travelRoute['destination'] ?: 'Pendiente' }}</p>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.destination') }}</p>
+                                    <p class="mt-2 text-sm font-medium text-slate-900">{{ $travelRoute['destination'] ?: __('ui.pending_capitalized') }}</p>
                                 </div>
                             </div>
 
@@ -167,11 +167,11 @@
 
                                 <div class="grid gap-3 sm:grid-cols-2">
                                     <div class="rounded-2xl bg-sky-50 p-4">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">Tiempo estimado</p>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-sky-600">{{ __('ui.estimated_time') }}</p>
                                         <p class="mt-2 text-xl font-semibold text-slate-900">{{ $travelRoute['duration_text'] }}</p>
                                     </div>
                                     <div class="rounded-2xl bg-slate-50 p-4">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Distancia</p>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.distance') }}</p>
                                         <p class="mt-2 text-xl font-semibold text-slate-900">{{ $travelRoute['distance_text'] }}</p>
                                     </div>
                                 </div>
@@ -226,11 +226,11 @@
                                             }).addTo(map);
 
                                             if (originPoint.lat && originPoint.lon) {
-                                                L.marker([originPoint.lat, originPoint.lon]).addTo(map).bindPopup('Origen');
+                                                L.marker([originPoint.lat, originPoint.lon]).addTo(map).bindPopup('{{ __('ui.origin') }}');
                                             }
 
                                             if (destinationPoint.lat && destinationPoint.lon) {
-                                                L.marker([destinationPoint.lat, destinationPoint.lon]).addTo(map).bindPopup('Destino');
+                                                L.marker([destinationPoint.lat, destinationPoint.lon]).addTo(map).bindPopup('{{ __('ui.destination') }}');
                                             }
 
                                             map.fitBounds(routeLine.getBounds(), { padding: [24, 24] });
@@ -246,37 +246,37 @@
 
                             @elseif (($travelRoute['reason'] ?? null) === 'plane_mode')
                                 <div class="rounded-2xl border border-sky-200 bg-sky-50 p-4 text-sm text-sky-800">
-                                    El modo de viaje es avion. No se calcula ruta por carretera, pero puedes seguir usando origen y destino como referencia logistica.
+                                    {{ __('ui.plane_mode_logistics_notice') }}
                                 </div>
                                 <div class="grid gap-3 sm:grid-cols-2">
                                     <div class="rounded-2xl bg-white p-4 ring-1 ring-sky-100">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Origen vuelo</p>
-                                        <p class="mt-2 text-sm font-medium text-slate-900">{{ $show->flight_origin ?: 'Pendiente' }}</p>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.flight_origin') }}</p>
+                                        <p class="mt-2 text-sm font-medium text-slate-900">{{ $show->flight_origin ?: __('ui.pending_capitalized') }}</p>
                                     </div>
                                     <div class="rounded-2xl bg-white p-4 ring-1 ring-sky-100">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Destino vuelo</p>
-                                        <p class="mt-2 text-sm font-medium text-slate-900">{{ $show->flight_destination ?: 'Pendiente' }}</p>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.flight_destination') }}</p>
+                                        <p class="mt-2 text-sm font-medium text-slate-900">{{ $show->flight_destination ?: __('ui.pending_capitalized') }}</p>
                                     </div>
                                     <div class="rounded-2xl bg-white p-4 ring-1 ring-sky-100">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Duracion estimada</p>
-                                        <p class="mt-2 text-sm font-medium text-slate-900">{{ $show->flight_duration_estimate ?: 'Pendiente' }}</p>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.estimated_duration') }}</p>
+                                        <p class="mt-2 text-sm font-medium text-slate-900">{{ $show->flight_duration_estimate ?: __('ui.pending_capitalized') }}</p>
                                     </div>
                                     <div class="rounded-2xl bg-white p-4 ring-1 ring-sky-100 sm:col-span-2">
-                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Notas de vuelo y traslados</p>
-                                        <div class="mt-2 text-sm leading-6 text-slate-700 whitespace-pre-line">{{ $show->flight_notes ?: 'Sin notas.' }}</div>
+                                        <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.flight_notes_and_transfers') }}</p>
+                                        <div class="mt-2 whitespace-pre-line text-sm leading-6 text-slate-700">{{ $show->flight_notes ?: __('ui.no_notes') }}</div>
                                     </div>
                                 </div>
                             @elseif (($travelRoute['reason'] ?? null) === 'missing_addresses')
                                 <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-                                    Completa el origen de viaje y asegúrate de que el venue tenga texto suficiente para calcular la ruta.
+                                    {{ __('ui.route_missing_addresses_show_notice') }}
                                 </div>
                             @elseif (($travelRoute['reason'] ?? null) === 'geocoding_failed')
                                 <div class="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-                                    No se han encontrado bien las direcciones. Revisa el origen o detalla mejor el venue.
+                                    {{ __('ui.route_geocoding_failed_show_notice') }}
                                 </div>
                             @else
                                 <div class="rounded-2xl border border-rose-200 bg-rose-50 p-4 text-sm text-rose-800">
-                                    No se ha podido calcular la ruta ahora mismo. Inténtalo más tarde.
+                                    {{ __('ui.route_unavailable_show_notice') }}
                                 </div>
                             @endif
                         </div>
@@ -285,49 +285,49 @@
                     <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
                         <div class="flex items-center justify-between gap-3">
                             <div>
-                                <h3 class="text-lg font-semibold text-slate-900">Documentos del bolo</h3>
-                                <p class="text-sm text-slate-500">En la ficha solo se muestran los documentos ya subidos.</p>
+                                <h3 class="text-lg font-semibold text-slate-900">{{ __('ui.show_documents') }}</h3>
+                                <p class="text-sm text-slate-500">{{ __('ui.show_record_documents_help') }}</p>
                             </div>
-                            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">{{ $show->documents->count() }} docs</span>
+                            <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">{{ __('ui.docs_count', ['count' => $show->documents->count()]) }}</span>
                         </div>
 
                         <div class="mt-6 space-y-4">
                             @forelse ($show->documents as $document)
                                 <article class="rounded-2xl border border-slate-200 p-4">
-                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ $document->document_type }}</p>
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ \App\Models\ShowDocument::translatedTypeLabel($document->document_type) }}</p>
                                     <h4 class="mt-2 text-base font-semibold text-slate-900">{{ $document->title }}</h4>
                                     <p class="mt-1 break-all text-sm text-slate-500">{{ $document->original_name }}</p>
                                     <p class="mt-2 text-xs text-slate-400">
-                                        {{ $document->uploader?->name ?: 'Sin usuario' }} · {{ $document->created_at->format('d/m/Y H:i') }}
+                                        {{ $document->uploader?->name ?: __('ui.no_user') }} · {{ $document->created_at->format('d/m/Y H:i') }}
                                     </p>
                                     <div class="mt-4 flex flex-col gap-2 sm:flex-row">
                                         <a href="{{ route('shows.documents.show', [$show, $document]) }}" class="inline-flex items-center justify-center rounded-full bg-slate-900 px-3 py-2 text-xs font-semibold text-white transition hover:bg-slate-800">
-                                            Abrir o descargar
+                                            {{ __('ui.open_or_download') }}
                                         </a>
                                         <a href="{{ route('shows.edit', $show) }}#show-documents" class="inline-flex items-center justify-center rounded-full border border-slate-300 px-3 py-2 text-xs font-semibold text-slate-700 transition hover:bg-slate-100">
-                                            Gestionar en editar
+                                            {{ __('ui.manage_in_edit') }}
                                         </a>
                                     </div>
                                 </article>
                             @empty
                                 <div class="rounded-2xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">
-                                    Todavia no hay documentos en este bolo.
+                                    {{ __('ui.no_show_documents_yet') }}
                                 </div>
                             @endforelse
                         </div>
                     </div>
 
                     <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-                        <h3 class="text-lg font-semibold text-slate-900">Actividad reciente</h3>
+                        <h3 class="text-lg font-semibold text-slate-900">{{ __('ui.recent_activity') }}</h3>
                         <div class="mt-4 space-y-3">
                             @forelse ($show->activityLogs->take(12) as $log)
                                 <div class="rounded-2xl border border-slate-200 p-4">
                                     <p class="text-sm font-semibold text-slate-900">{{ $log->detail }}</p>
-                                    <p class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">{{ $log->actor_name ?: 'Sistema' }} · {{ $log->created_at->format('d/m/Y H:i') }}</p>
+                                    <p class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">{{ $log->actor_name ?: __('ui.system') }} · {{ $log->created_at->format('d/m/Y H:i') }}</p>
                                 </div>
                             @empty
                                 <div class="rounded-2xl border border-dashed border-slate-300 p-6 text-sm text-slate-500">
-                                    Aun no hay actividad para este bolo.
+                                    {{ __('ui.no_show_activity_yet') }}
                                 </div>
                             @endforelse
                         </div>
