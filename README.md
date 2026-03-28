@@ -211,6 +211,14 @@ La importacion:
 - Para `avion` se usan datos manuales de vuelo y traslados
 - Los bolos pasados se muestran como `closed` de forma efectiva en la UI, mails y PDF sin depender de cron
 
+## Vista de mapa de bolos
+
+- `Bolos > Ver mapa` abre una vista geografica separada, sin cargar el dashboard
+- El mapa usa la `city` del bolo como punto aproximado
+- Los pines se numeran por orden cronologico
+- La carga de coordenadas se hace por lotes cortos desde `Actualizar puntos`
+- Una vez calculadas, las coordenadas quedan guardadas en la base de datos para que la vista vuelva a abrir rapido
+
 ## Accesos compartidos
 
 - `Accesos` permite crear enlaces por token sin login
@@ -263,6 +271,7 @@ Implementado:
 - logistica de viaje por bolo con origen configurable, modos `coche`, `furgo`, `sleeper` y `avion`
 - calculo de ruta por carretera en la ficha del bolo con mapa embebido, distancia, tiempo y enlace
 - datos manuales de vuelo para `avion` y resumen logistico de viaje en el PDF
+- vista `Ver mapa` en bolos con sincronizacion de coordenadas por ciudad y carga por lotes
 - infraestructura base de idioma `es/en` con traduccion aplicada a la mayoria de la UI operativa y publica
 - cierre efectivo automatico de bolos pasados en la presentacion de estado
 

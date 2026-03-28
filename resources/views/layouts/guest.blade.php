@@ -30,8 +30,11 @@
         <div class="min-h-screen flex flex-col bg-gray-100 pt-6 transition-colors dark:bg-slate-950 sm:pt-0">
             <div class="flex flex-1 flex-col items-center justify-center px-4">
             <div>
-                <a href="/">
-                    <x-application-logo class="w-20 h-20 fill-current text-gray-500" />
+                <a href="/" class="flex flex-col items-center gap-3">
+                    <span class="flex h-20 w-20 items-center justify-center rounded-[1.75rem] bg-slate-900 text-2xl font-black tracking-[0.18em] text-white shadow-lg shadow-slate-900/20 dark:bg-white dark:text-slate-950">
+                        SC
+                    </span>
+                    <span class="text-xs font-semibold uppercase tracking-[0.35em] text-slate-400">Show Control</span>
                 </a>
             </div>
 
@@ -41,7 +44,12 @@
             </div>
 
             <footer class="border-t border-slate-200/70 bg-transparent px-4 py-4 text-center text-xs text-slate-500 transition-colors dark:border-slate-800/60 dark:text-slate-400">
-                {{ __('ui.footer', ['year' => now()->year]) }}
+                <div class="flex items-center justify-center gap-3">
+                    <span class="flex h-6 w-6 items-center justify-center rounded-xl bg-slate-900 text-[10px] font-black tracking-[0.16em] text-white dark:bg-white dark:text-slate-950">
+                        SC
+                    </span>
+                    <span>{{ __('ui.footer', ['year' => now()->year]) }}</span>
+                </div>
             </footer>
         </div>
     </body>

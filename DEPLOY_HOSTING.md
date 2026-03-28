@@ -128,6 +128,12 @@ Si cambias logistica de ruta o transporte de bolos:
 - si hay migraciones nuevas de bolos, subirlas a `html/sc_app/database/migrations/`
 - ejecutar `php artisan migrate --force` y luego `php artisan optimize:clear` o el runner web equivalente
 
+Si cambias la vista `Bolos > Ver mapa` o la persistencia de coordenadas por ciudad:
+
+- subir archivos modificados de `app/Support/OpenStreetMapRouteService.php`, `app/Http/Controllers/ShowController.php`, `app/Models/Show.php`, `resources/views/shows/`, `lang/` y `routes/`
+- si hay migraciones nuevas de coordenadas, subirlas a `html/sc_app/database/migrations/`
+- ejecutar `php artisan migrate --force` y luego `php artisan optimize:clear` o el runner web equivalente
+
 ## No subir normalmente
 
 - `node_modules/`
@@ -162,6 +168,7 @@ Comprobar:
 - chat por secciones funciona
 - ficha de bolo calcula ruta por carretera y muestra el mapa embebido
 - modo `avion` muestra los datos manuales de vuelo
+- `Bolos > Ver mapa` carga y permite actualizar coordenadas por ciudad en lotes
 - `Plataforma > Usuarios` carga y permite gestionar cuentas
 - `Plataforma > Correo` carga y puede enviar avisos globales si el SMTP esta bien configurado
 - `Plataforma > Ajustes` carga y el idioma por defecto cambia la UI compartida

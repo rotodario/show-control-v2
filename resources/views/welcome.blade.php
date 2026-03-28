@@ -12,14 +12,14 @@
     </head>
     <body class="min-h-screen bg-slate-950 text-white">
         <main class="mx-auto flex min-h-screen max-w-7xl flex-col justify-center px-6 py-16 lg:px-8">
-            <div class="grid gap-12 lg:grid-cols-[1.1fr_0.9fr] lg:items-center">
+            <div class="grid gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
                 <div>
-                    <p class="text-sm font-semibold uppercase tracking-[0.4em] text-sky-300">Show Control v2</p>
+                    <p class="text-sm font-semibold uppercase tracking-[0.4em] text-sky-300">Show Control v2.2</p>
                     <h1 class="mt-6 max-w-4xl text-4xl font-black tracking-tight text-white sm:text-6xl">
                         Gestion web de giras, bolos y documentacion tecnica.
                     </h1>
                     <p class="mt-6 max-w-2xl text-lg leading-8 text-slate-300">
-                        Base Laravel preparada para produccion, persistencia real, accesos por rol y arquitectura mantenible para seguir hasta calendario, alertas, actividad y PDF.
+                        Base preparada para produccion con bolos, calendario, alertas, roadmap PDF, accesos por token, correo operativo, logistica de viaje y herramientas de plataforma.
                     </p>
                     <div class="mt-8 flex flex-col gap-3 sm:flex-row">
                         <a href="{{ route('login') }}" class="inline-flex items-center justify-center rounded-full bg-sky-500 px-6 py-3 text-sm font-semibold text-slate-950 transition hover:bg-sky-400">
@@ -34,20 +34,26 @@
                 </div>
 
                 <div class="rounded-[2rem] border border-white/10 bg-white/5 p-6 shadow-2xl shadow-sky-950/40 backdrop-blur">
-                    <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="space-y-4">
                         <div class="rounded-3xl bg-white/10 p-5">
-                            <p class="text-sm text-slate-300">Bloque actual</p>
-                            <p class="mt-2 text-2xl font-bold">Giras</p>
-                            <p class="mt-3 text-sm text-slate-400">CRUD completo con contactos y documentos propios.</p>
+                            <p class="text-sm text-slate-300">Hoja de ruta</p>
+                            <p class="mt-2 text-xl font-bold text-white">Genera y envia roadmap PDF rapidamente.</p>
+                            <p class="mt-3 text-sm text-slate-400">Con branding, contacto, estado del bolo y resumen operativo listo para compartir.</p>
                         </div>
                         <div class="rounded-3xl bg-white/10 p-5">
-                            <p class="text-sm text-slate-300">Siguiente base</p>
-                            <p class="mt-2 text-2xl font-bold">Bolos</p>
-                            <p class="mt-3 text-sm text-slate-400">Horarios, validaciones tecnicas, alertas y PDF.</p>
+                            <p class="text-sm text-slate-300">Chat interno</p>
+                            <p class="mt-2 text-xl font-bold text-white">Coordina por secciones sin perder contexto.</p>
+                            <p class="mt-3 text-sm text-slate-400">Iluminacion, sonido, espacio y general con mensajes persistentes y no leidos.</p>
                         </div>
-                        <div class="rounded-3xl bg-white/10 p-5 sm:col-span-2">
-                            <p class="text-sm text-slate-300">Stack elegido</p>
-                            <p class="mt-2 text-lg font-semibold">Laravel 10 + Blade + Alpine + Tailwind + Breeze + Spatie Permission + Dompdf</p>
+                        <div class="rounded-3xl bg-white/10 p-5">
+                            <p class="text-sm text-slate-300">Accesos y equipo</p>
+                            <p class="mt-2 text-xl font-bold text-white">Comparte solo lo que toca ver.</p>
+                            <p class="mt-3 text-sm text-slate-400">Enlaces por token, permisos por rol y gestion rapida de usuarios desde plataforma.</p>
+                        </div>
+                        <div class="rounded-3xl bg-white/10 p-5">
+                            <p class="text-sm text-slate-300">Logistica</p>
+                            <p class="mt-2 text-xl font-bold text-white">Ten clara la ruta antes del dia de show.</p>
+                            <p class="mt-3 text-sm text-slate-400">Tiempo, distancia, mapa embebido y datos manuales de vuelo cuando hacen falta.</p>
                         </div>
                     </div>
                 </div>

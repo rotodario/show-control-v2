@@ -108,6 +108,8 @@ class Show extends Model
         'tour_id',
         'date',
         'city',
+        'city_latitude',
+        'city_longitude',
         'venue',
         'travel_origin',
         'travel_mode',
@@ -140,6 +142,8 @@ class Show extends Model
 
     protected $casts = [
         'date' => 'date',
+        'city_latitude' => 'float',
+        'city_longitude' => 'float',
         'load_in_at' => 'datetime:H:i',
         'meal_at' => 'datetime:H:i',
         'soundcheck_at' => 'datetime:H:i',

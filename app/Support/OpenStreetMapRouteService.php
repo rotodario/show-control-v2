@@ -8,6 +8,57 @@ use Illuminate\Support\Facades\Http;
 
 class OpenStreetMapRouteService
 {
+    public function destinationPointForShow(Show $show): ?array
+    {
+        $destination = trim(collect([$show->venue, $show->city])->filter()->implode(', '));
+
+        if ($destination === '') {
+            return null;
+        }
+
+        $cacheKey = 'osm-destination-point:'.sha1($destination);
+
+        try {
+            return Cache::remember($cacheKey, now()->addHours(24), fn () => $this->geocode($destination));
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    public function cityPointForShow(Show $show): ?array
+    {
+        $city = trim((string) $show->city);
+
+        if ($city === '') {
+            return null;
+        }
+
+        $cacheKey = 'osm-city-point:'.sha1($city);
+
+        try {
+            return Cache::remember($cacheKey, now()->addDays(7), fn () => $this->geocode($city));
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    public function cityPoint(string $city): ?array
+    {
+        $city = trim($city);
+
+        if ($city === '') {
+            return null;
+        }
+
+        $cacheKey = 'osm-city-point:'.sha1($city);
+
+        try {
+            return Cache::remember($cacheKey, now()->addDays(7), fn () => $this->geocode($city));
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
     public function routeForShow(Show $show): array
     {
         $origin = trim((string) $show->travel_origin);

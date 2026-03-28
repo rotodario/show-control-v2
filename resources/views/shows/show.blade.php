@@ -322,7 +322,7 @@
                         <div class="mt-4 space-y-3">
                             @forelse ($show->activityLogs->take(12) as $log)
                                 <div class="rounded-2xl border border-slate-200 p-4">
-                                    <p class="text-sm font-semibold text-slate-900">{{ $log->detail }}</p>
+                                    <p class="text-sm font-semibold text-slate-900">{{ $log->translatedDetail() }}</p>
                                     <p class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">{{ $log->actor_name ?: __('ui.system') }} · {{ $log->created_at->format('d/m/Y H:i') }}</p>
                                 </div>
                             @empty

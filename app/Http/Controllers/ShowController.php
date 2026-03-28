@@ -20,6 +20,8 @@ use Illuminate\View\View;
 
 class ShowController extends Controller
 {
+    private const MAP_SYNC_BATCH_SIZE = 5;
+
     public function index(Request $request, ShowAlertService $showAlertService, ShowMessageReadService $showMessageReadService): View
     {
         $userId = auth()->id();
@@ -40,6 +42,101 @@ class ShowController extends Controller
             'showAlerts' => $showAlertService->alertsForCollection($shows->getCollection(), $request->user()),
             'unreadMessageCounts' => $showMessageReadService->unreadCountsForUser($shows->getCollection(), $request->user()),
         ]);
+    }
+
+    public function map(Request $request, OpenStreetMapRouteService $openStreetMapRouteService): View
+    {
+        $userId = auth()->id();
+        $tourId = $request->integer('tour_id');
+        $shows = Show::ownedBy($userId)
+            ->with('tour')
+            ->when($tourId, fn ($query) => $query->where('tour_id', $tourId))
+            ->whereDate('date', '>=', now()->toDateString())
+            ->orderBy('date')
+            ->orderBy('city')
+            ->get()
+            ->values();
+
+        $mapShows = $shows
+            ->map(function (Show $show, int $index) {
+                if ($show->city_latitude === null || $show->city_longitude === null) {
+                    return null;
+                }
+
+                return [
+                    'number' => $index + 1,
+                    'name' => $show->name,
+                    'date' => $show->date?->format('d/m/Y'),
+                    'city' => $show->city,
+                    'venue' => $show->venue,
+                    'status' => $show->translatedCurrentStatus(),
+                    'tour_name' => $show->tour?->name,
+                    'tour_color' => $show->tour?->color,
+                    'url' => route('shows.show', $show),
+                    'lat' => $show->city_latitude,
+                    'lon' => $show->city_longitude,
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return view('shows.map', [
+            'shows' => $shows,
+            'mapShows' => $mapShows,
+            'tours' => Tour::ownedBy($userId)->orderBy('name')->get(),
+            'selectedTourId' => $tourId,
+            'missingMapPointsCount' => $shows->filter(fn (Show $show) => $show->city_latitude === null || $show->city_longitude === null)->count(),
+        ]);
+    }
+
+    public function syncMap(Request $request, OpenStreetMapRouteService $openStreetMapRouteService): RedirectResponse
+    {
+        $userId = auth()->id();
+        $tourId = $request->integer('tour_id');
+        $shows = Show::ownedBy($userId)
+            ->when($tourId, fn ($query) => $query->where('tour_id', $tourId))
+            ->whereDate('date', '>=', now()->toDateString())
+            ->where(function ($query) {
+                $query->whereNull('city_latitude')
+                    ->orWhereNull('city_longitude');
+            })
+            ->orderBy('date')
+            ->orderBy('city')
+            ->take(self::MAP_SYNC_BATCH_SIZE)
+            ->get();
+
+        $updatedCount = 0;
+
+        foreach ($shows as $show) {
+            $point = $openStreetMapRouteService->cityPoint($show->city);
+
+            if (! $point) {
+                continue;
+            }
+
+            $show->forceFill([
+                'city_latitude' => $point['lat'],
+                'city_longitude' => $point['lon'],
+            ])->save();
+
+            $updatedCount++;
+        }
+
+        $remainingCount = Show::ownedBy($userId)
+            ->when($tourId, fn ($query) => $query->where('tour_id', $tourId))
+            ->whereDate('date', '>=', now()->toDateString())
+            ->where(function ($query) {
+                $query->whereNull('city_latitude')
+                    ->orWhereNull('city_longitude');
+            })
+            ->count();
+
+        return redirect()
+            ->route('shows.map', $tourId ? ['tour_id' => $tourId] : [])
+            ->with('status', __('ui.shows_map_synced', [
+                'count' => $updatedCount,
+                'remaining' => $remainingCount,
+            ]));
     }
 
     public function calendar(Request $request, ShowAlertService $showAlertService): View
@@ -277,8 +374,16 @@ class ShowController extends Controller
     public function update(UpdateShowRequest $request, Show $show): RedirectResponse
     {
         $this->ensureOwnedShow($show);
+        $originalCity = $show->city;
 
         $show->update($this->payload($request));
+
+        if ($show->city !== $originalCity) {
+            $show->forceFill([
+                'city_latitude' => null,
+                'city_longitude' => null,
+            ])->save();
+        }
 
         ActivityLogger::log(
             action: 'show.updated',

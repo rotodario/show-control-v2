@@ -76,6 +76,8 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('permission:manage shows')->group(function () {
         Route::get('/shows-calendar', [ShowController::class, 'calendar'])->name('shows.calendar');
+        Route::get('/shows-map', [ShowController::class, 'map'])->name('shows.map');
+        Route::post('/shows-map/sync', [ShowController::class, 'syncMap'])->name('shows.map.sync');
         Route::resource('shows', ShowController::class);
         Route::put('/shows/{show}/preview-route', [ShowController::class, 'previewRoute'])->name('shows.preview-route');
         Route::post('/shows/{show}/send-roadmap-mail', [ShowController::class, 'sendRoadmapMail'])->name('shows.send-roadmap-mail');

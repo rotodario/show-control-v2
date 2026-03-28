@@ -43,8 +43,11 @@
             </main>
 
             <footer class="border-t border-slate-200/70 bg-transparent transition-colors dark:border-slate-800/60">
-                <div class="mx-auto max-w-7xl px-4 py-4 text-center text-xs text-slate-500 sm:px-6 lg:px-8 dark:text-slate-400">
-                    {{ __('ui.footer', ['year' => now()->year]) }}
+                <div class="mx-auto flex max-w-7xl items-center justify-center gap-3 px-4 py-4 text-center text-xs text-slate-500 sm:px-6 lg:px-8 dark:text-slate-400">
+                    <span class="flex h-6 w-6 items-center justify-center rounded-xl bg-slate-900 text-[10px] font-black tracking-[0.16em] text-white dark:bg-white dark:text-slate-950">
+                        SC
+                    </span>
+                    <span>{{ __('ui.footer', ['year' => now()->year]) }}</span>
                 </div>
             </footer>
         </div>

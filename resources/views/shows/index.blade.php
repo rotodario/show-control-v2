@@ -7,6 +7,9 @@
                 <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ __('ui.shows_index_description') }}</p>
             </div>
             <div class="flex flex-wrap gap-3">
+                <a href="{{ route('shows.map', request()->only('tour_id')) }}" class="inline-flex items-center justify-center rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
+                    {{ __('ui.view_map') }}
+                </a>
                 <a href="{{ route('shows.calendar') }}" class="inline-flex items-center justify-center rounded-full border border-slate-300 px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 dark:border-slate-700 dark:text-slate-200 dark:hover:bg-slate-800">
                     {{ __('ui.view_calendar') }}
                 </a>
@@ -40,9 +43,10 @@
 
             <div class="grid gap-4">
                 @forelse ($shows as $show)
-                    <article class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900/90">
+                    <article class="relative rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm transition hover:border-sky-300 hover:bg-sky-50/40 dark:border-slate-700 dark:bg-slate-900/90 dark:hover:bg-slate-900">
+                        <a href="{{ route('shows.show', $show) }}" class="absolute inset-0 rounded-[2rem]" aria-label="{{ __('ui.open') }} {{ $show->name }}"></a>
                         <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-                            <div class="min-w-0">
+                            <div class="min-w-0 pointer-events-none">
                                 <div class="flex flex-wrap items-center gap-2">
                                     <h3 class="truncate text-xl font-semibold text-slate-900 dark:text-slate-100">{{ $show->name }}</h3>
                                     <span class="rounded-full px-3 py-1 text-xs font-medium {{ $show->currentStatusBadgeClasses() }}">{{ $show->translatedCurrentStatus() }}</span>
@@ -76,7 +80,7 @@
                                     @endforeach
                                 </div>
                             </div>
-                            <div class="flex flex-col gap-3 sm:flex-row">
+                            <div class="relative z-20 flex flex-col gap-3 sm:flex-row">
                                 <a href="{{ route('shows.show', $show) }}" class="inline-flex items-center justify-center rounded-full bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-slate-800">
                                     {{ __('ui.open') }}
                                 </a>

@@ -1,17 +1,53 @@
 <x-public-access-layout>
     <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+        @php
+            $visibleShowsCount = $shows->total();
+            $visibleAlertsCount = collect($showAlerts)->sum(fn ($alerts) => count($alerts));
+            $visibleUnreadCount = collect($unreadMessageCounts)->sum();
+        @endphp
+
         @if (session('status'))
             <div class="mb-6 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-sm text-emerald-800">
                 {{ session('status') }}
             </div>
         @endif
 
-        <div class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-            <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">{{ __('ui.shared_access') }}</p>
-            <h1 class="mt-2 text-3xl font-semibold text-slate-900">{{ \App\Models\SharedAccess::translatedRoleLabel($grant->role) }}</h1>
-            <p class="mt-2 text-sm text-slate-500">
-                {{ $grant->label ?: __('ui.shared_link') }} &middot; {{ $grant->tour?->name ?: __('ui.all_tours') }}
-            </p>
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div class="flex min-w-0 items-center gap-4">
+                <div class="flex h-12 min-w-[3.5rem] items-center justify-center rounded-2xl bg-slate-900 px-3 text-sm font-black tracking-[0.18em] text-white shadow-sm">
+                    SC
+                </div>
+                <div>
+                    <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500">{{ __('ui.shared_access') }}</p>
+                    <p class="text-lg font-semibold text-slate-900">Show Control</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 lg:flex-1 lg:justify-center">
+                <span class="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-sm ring-1 ring-slate-200">
+                    {{ __('ui.shows_count', ['count' => $visibleShowsCount]) }}
+                </span>
+                <span class="rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-700 shadow-sm ring-1 ring-amber-200">
+                    {{ __('ui.alerts_count', ['count' => $visibleAlertsCount]) }}
+                </span>
+                <span class="rounded-full bg-sky-50 px-3 py-1.5 text-xs font-semibold text-sky-700 shadow-sm ring-1 ring-sky-200">
+                    {{ __('ui.new_messages_count', ['count' => $visibleUnreadCount]) }}
+                </span>
+            </div>
+            <div class="max-w-full rounded-[2rem] border border-slate-200 bg-white px-6 py-6 text-center shadow-sm lg:flex-none" style="width: 100%; max-width: 17rem;">
+                    <h1 class="text-2xl font-semibold text-slate-900">{{ $grant->label ?: __('ui.shared_link') }}</h1>
+                    <p class="mt-1 text-sm font-medium text-slate-500">{{ \App\Models\SharedAccess::translatedRoleLabel($grant->role) }}</p>
+                    <div class="mt-3 flex justify-center">
+                        @if ($grant->tour)
+                            <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-white shadow-sm" style="background-color: {{ $grant->tour->color }}">
+                                {{ $grant->tour->name }}
+                            </span>
+                        @else
+                            <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600">
+                                {{ __('ui.all_tours') }}
+                            </span>
+                        @endif
+                    </div>
+            </div>
         </div>
 
         @if ($permissions['create_shows'])

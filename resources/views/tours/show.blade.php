@@ -120,7 +120,7 @@
                             @forelse ($tour->activityLogs->take(12) as $log)
                                 <div class="rounded-2xl border border-slate-200 p-4">
                                     <div class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                                        <p class="text-sm font-semibold text-slate-900">{{ $log->detail }}</p>
+                                        <p class="text-sm font-semibold text-slate-900">{{ $log->translatedDetail() }}</p>
                                         <p class="text-xs text-slate-500">{{ $log->created_at->format('d/m/Y H:i') }}</p>
                                     </div>
                                     <p class="mt-1 text-xs uppercase tracking-[0.2em] text-slate-400">{{ $log->actor_name ?: __('ui.system') }} · {{ $log->action }}</p>
