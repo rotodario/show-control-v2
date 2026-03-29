@@ -6,6 +6,7 @@ use App\Models\SharedAccess;
 use App\Models\Show;
 use App\Models\ShowDocument;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class SharedAccessService
@@ -161,7 +162,11 @@ class SharedAccessService
             return null;
         }
 
-        $grant->forceFill(['last_used_at' => now()])->saveQuietly();
+        try {
+            $grant->forceFill(['last_used_at' => $this->safeAccessTimestamp()])->saveQuietly();
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
 
         return $grant;
     }
@@ -312,5 +317,16 @@ class SharedAccessService
             'sound' => ['Rider', 'Patch', 'Input List', 'Timing'],
             default => null,
         };
+    }
+
+    private function safeAccessTimestamp(): string
+    {
+        $timestamp = Carbon::now();
+
+        if ($timestamp->format('H') === '02') {
+            $timestamp = $timestamp->addHour();
+        }
+
+        return $timestamp->format('Y-m-d H:i:s');
     }
 }

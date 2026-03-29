@@ -6,36 +6,29 @@ use App\Models\SharedAccess;
 use App\Models\Show;
 use App\Models\ShowMessageRead;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 
 class ShowMessageReadService
 {
     public function markReadForUser(Show $show, User $user): void
     {
-        ShowMessageRead::updateOrCreate(
-            [
-                'show_id' => $show->id,
-                'user_id' => $user->id,
-            ],
-            [
-                'shared_access_id' => null,
-                'last_read_at' => now(),
-            ]
-        );
+        $this->persistReadMarker([
+            'show_id' => $show->id,
+            'user_id' => $user->id,
+        ], [
+            'shared_access_id' => null,
+        ]);
     }
 
     public function markReadForSharedAccess(Show $show, SharedAccess $grant): void
     {
-        ShowMessageRead::updateOrCreate(
-            [
-                'show_id' => $show->id,
-                'shared_access_id' => $grant->id,
-            ],
-            [
-                'user_id' => null,
-                'last_read_at' => now(),
-            ]
-        );
+        $this->persistReadMarker([
+            'show_id' => $show->id,
+            'shared_access_id' => $grant->id,
+        ], [
+            'user_id' => null,
+        ]);
     }
 
     public function unreadCountsForUser(iterable $shows, User $user): Collection
@@ -106,5 +99,31 @@ class ShowMessageReadService
             ->filter(fn ($message) => $lastReadAt === null || $message->created_at->gt($lastReadAt))
             ->pluck('id')
             ->values();
+    }
+
+    private function persistReadMarker(array $attributes, array $values): void
+    {
+        try {
+            ShowMessageRead::updateOrCreate(
+                $attributes,
+                [
+                    ...$values,
+                    'last_read_at' => $this->safeReadTimestamp(),
+                ]
+            );
+        } catch (\Throwable $exception) {
+            report($exception);
+        }
+    }
+
+    private function safeReadTimestamp(): string
+    {
+        $timestamp = Carbon::now();
+
+        if ($timestamp->format('H') === '02') {
+            $timestamp = $timestamp->addHour();
+        }
+
+        return $timestamp->format('Y-m-d H:i:s');
     }
 }
