@@ -106,4 +106,13 @@ class SharedAccess extends Model
             ? "{$this->label} ({$role})"
             : __('ui.shared_access')." ({$role})";
     }
+
+    public function avatarInitials(): string
+    {
+        $source = $this->label ?: self::translatedRoleLabel($this->role);
+        $source = preg_replace('/\s+/', '', trim((string) $source)) ?: '';
+        $initials = Str::upper(Str::substr($source, 0, 2));
+
+        return $initials !== '' ? $initials : 'SC';
+    }
 }

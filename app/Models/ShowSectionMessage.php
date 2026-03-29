@@ -83,4 +83,20 @@ class ShowSectionMessage extends Model
 
         return self::ACCENT_COLORS[abs(crc32($key)) % count(self::ACCENT_COLORS)];
     }
+
+    public function authorInitials(): string
+    {
+        if ($this->sharedAccess) {
+            return $this->sharedAccess->avatarInitials();
+        }
+
+        if ($this->user) {
+            return $this->user->avatarInitials();
+        }
+
+        $source = preg_replace('/\s+/', '', trim((string) $this->authorDisplayName())) ?: '';
+        $initials = Str::upper(Str::substr($source, 0, 2));
+
+        return $initials !== '' ? $initials : 'SC';
+    }
 }

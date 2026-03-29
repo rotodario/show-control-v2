@@ -33,6 +33,7 @@ class ShowRoadmapMail extends Mailable
             'show_city' => $this->show->city ?: '-',
             'show_venue' => $this->show->venue ?: '-',
             'show_status' => $this->show->translatedCurrentStatus(),
+            'show_url' => $this->show->publicSummaryUrl(),
             'travel_mode' => \App\Models\Show::translatedTravelModeOptions()[$this->show->travel_mode ?: 'van'] ?? ($this->show->travel_mode ?: '-'),
             'travel_duration' => $this->travelRoute['duration_text'] ?? '-',
             'travel_distance' => $this->travelRoute['distance_text'] ?? '-',
@@ -45,13 +46,13 @@ class ShowRoadmapMail extends Mailable
         $subject = MailTemplateRenderer::render(
             $this->settings->subject_template,
             $context,
-            'Hoja de ruta: {{show_name}} - {{show_date}}'
+            __('ui.mail_default_roadmap_subject')
         );
 
         $body = MailTemplateRenderer::render(
             $this->settings->body_template,
             $context,
-            "Hola,\n\nAdjuntamos la hoja de ruta del bolo {{show_name}} para el {{show_date}} en {{show_city}}.\nVenue: {{show_venue}}\nEstado: {{show_status}}\nModo de viaje: {{travel_mode}}\nTiempo estimado: {{travel_duration}}\nDistancia: {{travel_distance}}\nContacto: {{contact_name}} / {{contact_phone}} / {{contact_email}}\n\n{{signature}}"
+            __('ui.mail_default_roadmap_body')
         );
 
         $pdfService = app(ShowRoadmapPdfService::class);

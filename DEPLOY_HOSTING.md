@@ -110,6 +110,7 @@ Si cambias correo operativo, correo global o plantillas email:
 - subir archivos modificados de `app/Mail/`, `app/Listeners/`, `app/Support/`, `app/Http/Controllers/`, `app/Http/Requests/`, `app/Models/`, `resources/views/account/`, `resources/views/platform/`, `resources/views/emails/` y `routes/`
 - si hay migraciones nuevas de correo, subirlas a `html/sc_app/database/migrations/`
 - ejecutar `php artisan migrate --force` y luego `php artisan optimize:clear` o el runner web equivalente
+- si cambias previews o placeholders de `Cuenta > Correo`, revisar tambien `Bolos > Enviar mail`
 
 Si cambias idioma o traducciones:
 
@@ -121,11 +122,18 @@ Si cambias accesos compartidos internos o publicos:
 
 - subir archivos modificados de `app/Http/Controllers/SharedAccessController.php`, `app/Http/Controllers/PublicSharedAccessController.php`, `app/Models/SharedAccess.php`, `app/Support/SharedAccessService.php`, `resources/views/shared-accesses/`, `resources/views/public-access/`, `resources/views/components/public-access-layout.blade.php`, `lang/` y `routes/`
 - ejecutar `php artisan optimize:clear` o el runner web equivalente
+- si cambias el mini calendario publico o avatares, validar tambien la portada del token en movil
 
 Si cambias logistica de ruta o transporte de bolos:
 
 - subir archivos modificados de `app/Support/`, `app/Http/Controllers/`, `app/Http/Requests/`, `app/Models/`, `resources/views/shows/` y `routes/`
 - si hay migraciones nuevas de bolos, subirlas a `html/sc_app/database/migrations/`
+- ejecutar `php artisan migrate --force` y luego `php artisan optimize:clear` o el runner web equivalente
+
+Si cambias la URL publica de resumen de bolo o el placeholder `show_url`:
+
+- subir archivos modificados de `app/Models/Show.php`, `app/Http/Controllers/PublicShowController.php`, `app/Mail/`, `app/Support/`, `resources/views/public-shows/`, `resources/views/account/`, `lang/` y `routes/`
+- si hay migracion nueva del token publico del bolo, subirla a `html/sc_app/database/migrations/`
 - ejecutar `php artisan migrate --force` y luego `php artisan optimize:clear` o el runner web equivalente
 
 Si cambias la vista `Bolos > Ver mapa` o la persistencia de coordenadas por ciudad:
@@ -174,7 +182,10 @@ Comprobar:
 - `Plataforma > Ajustes` carga y el idioma por defecto cambia la UI compartida
 - `Plataforma > Herramientas` muestra chequeos, crea backup y lista backups
 - `Cuenta > Correo` carga y puede enviar `Hoja de ruta` y `Alerta operativa`
+- `Cuenta > Correo` muestra previews y permite restaurar plantillas por defecto
 - `Accesos` carga y permite crear/revocar enlaces por token
 - el acceso publico por token respeta idioma, permisos y visibilidad
+- el acceso publico por token muestra cabecera, avatares y mini calendario sin romper en movil
+- la URL publica propia de un bolo abre correctamente y `{{show_url}}` en los mails apunta ahi
 - `Tour` y `Dashboard` muestran correctamente las notas de giras creadas por importacion ICS segun el idioma activo
 - el footer se integra bien en light/dark mode

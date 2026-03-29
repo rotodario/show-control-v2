@@ -33,9 +33,16 @@
                     {{ __('ui.new_messages_count', ['count' => $visibleUnreadCount]) }}
                 </span>
             </div>
-            <div class="max-w-full rounded-[2rem] border border-slate-200 bg-white px-6 py-6 text-center shadow-sm lg:flex-none" style="width: 100%; max-width: 17rem;">
-                    <h1 class="text-2xl font-semibold text-slate-900">{{ $grant->label ?: __('ui.shared_link') }}</h1>
-                    <p class="mt-1 text-sm font-medium text-slate-500">{{ \App\Models\SharedAccess::translatedRoleLabel($grant->role) }}</p>
+            <div class="max-w-full rounded-[2rem] border border-slate-200 bg-white px-6 py-6 shadow-sm lg:flex-none" style="width: 100%; max-width: 17rem;">
+                    <div class="flex items-center gap-4 text-left">
+                        <div class="shrink-0 text-white shadow-sm" style="display:flex;width:52px;height:52px;min-width:52px;min-height:52px;border-radius:9999px;align-items:center;justify-content:center;background-color:#0f172a;font-size:18px;font-weight:700;line-height:1;">
+                            {{ $grant->avatarInitials() }}
+                        </div>
+                        <div class="min-w-0">
+                            <h1 class="truncate text-2xl font-semibold text-slate-900">{{ $grant->label ?: __('ui.shared_link') }}</h1>
+                            <p class="mt-1 text-sm font-medium text-slate-500">{{ \App\Models\SharedAccess::translatedRoleLabel($grant->role) }}</p>
+                        </div>
+                    </div>
                     <div class="mt-3 flex justify-center">
                         @if ($grant->tour)
                             <span class="inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold text-white shadow-sm" style="background-color: {{ $grant->tour->color }}">
@@ -47,6 +54,81 @@
                             </span>
                         @endif
                     </div>
+            </div>
+        </div>
+
+        <div class="mt-6 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
+            <div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                    <h2 class="text-lg font-semibold text-slate-900">{{ __('ui.calendar') }}</h2>
+                    <p class="mt-1 text-sm text-slate-500">{{ __('ui.shows_calendar_description') }}</p>
+                </div>
+                <div class="flex items-center gap-2 text-sm">
+                    <a href="{{ route('public-access.index', ['token' => $grant->token, 'month' => $previousMonth]) }}" class="inline-flex items-center justify-center rounded-full border border-slate-200 px-3 py-2 font-semibold text-slate-600 transition hover:bg-slate-50">
+                        {{ __('ui.previous_month') }}
+                    </a>
+                    <span class="rounded-full bg-slate-100 px-4 py-2 font-semibold text-slate-700">
+                        {{ $currentMonth->translatedFormat('F Y') }}
+                    </span>
+                    <a href="{{ route('public-access.index', ['token' => $grant->token, 'month' => $nextMonth]) }}" class="inline-flex items-center justify-center rounded-full border border-slate-200 px-3 py-2 font-semibold text-slate-600 transition hover:bg-slate-50">
+                        {{ __('ui.next_month') }}
+                    </a>
+                </div>
+            </div>
+
+            <div class="mt-5 overflow-x-auto pb-2">
+                <div class="grid min-w-[44rem] grid-cols-7 gap-2 text-center">
+                    @foreach ($weekdays as $weekday)
+                        <div class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ $weekday }}</div>
+                    @endforeach
+
+                    @foreach ($calendarDays as $day)
+                        @php
+                            $hasShows = $day['shows']->isNotEmpty();
+                            $primaryShow = $hasShows ? $day['shows']->first() : null;
+                            $dayUrl = route('public-access.index', [
+                                'token' => $grant->token,
+                                'month' => $currentMonth->format('Y-m'),
+                                'date' => $day['date']->format('Y-m-d'),
+                            ]);
+                        @endphp
+                        <a href="{{ $dayUrl }}" class="relative flex flex-col rounded-2xl border px-2 py-3 text-left transition {{ $day['isSelected'] ? 'border-sky-300 bg-sky-50 ring-1 ring-sky-200' : ($hasShows ? 'border-slate-200 bg-white hover:border-sky-300 hover:bg-sky-50/40' : 'border-slate-100 bg-slate-50/70 hover:bg-slate-100') }} {{ $day['isCurrentMonth'] ? 'text-slate-900' : 'text-slate-400' }}" style="height: 108px;">
+                            @if ($primaryShow?->tour?->color)
+                                <span class="absolute inset-x-3 top-0 h-1 rounded-b-full" style="background-color: {{ $primaryShow->tour->color }}"></span>
+                            @endif
+                            <div class="flex items-start justify-between gap-2">
+                                <span class="text-sm font-semibold {{ $day['isToday'] ? 'text-sky-700' : '' }}">{{ $day['date']->format('j') }}</span>
+                                @if ($hasShows)
+                                    <span class="rounded-full px-2 py-0.5 text-[10px] font-bold {{ $primaryShow->currentStatusBadgeClasses() }}">{{ $day['shows']->count() }}</span>
+                                @endif
+                            </div>
+                            <div class="mt-2 min-h-[2.4rem] flex-1">
+                                @if ($hasShows)
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="h-2.5 w-2.5 rounded-full {{ $primaryShow->currentStatusDotClasses() }}"></span>
+                                        <span class="truncate text-[11px] font-medium text-slate-500">{{ $primaryShow->name }}</span>
+                                    </div>
+                                    @if ($primaryShow->tour)
+                                        <div class="mt-1 truncate text-[10px] font-semibold uppercase tracking-[0.14em]" style="color: {{ $primaryShow->tour->color }}">
+                                            {{ $primaryShow->tour->name }}
+                                        </div>
+                                    @endif
+                                @endif
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="mt-4 flex flex-wrap items-center gap-3">
+                @if ($selectedDateInput !== '')
+                    <span class="rounded-full bg-sky-100 px-3 py-1.5 text-xs font-semibold text-sky-700">
+                        {{ __('ui.day_in_agenda') }}: {{ $selectedDate->format('d/m/Y') }}
+                    </span>
+                    <a href="{{ route('public-access.index', ['token' => $grant->token, 'month' => $currentMonth->format('Y-m')]) }}" class="inline-flex items-center justify-center rounded-full border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">
+                        {{ __('ui.view_all') }}
+                    </a>
+                @endif
             </div>
         </div>
 

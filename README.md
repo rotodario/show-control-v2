@@ -146,6 +146,11 @@ Puntos importantes:
 - `Cuenta > Correo` permite configurar:
   - `Hoja de ruta` externa con PDF adjunto
   - `Alerta operativa` con detalle real de alertas del bolo
+- `Cuenta > Correo` incluye vista previa real de ambos correos
+- Las plantillas por defecto salen traducidas en `es/en` y se pueden restaurar con un boton
+- `Bolos > Enviar mail` obliga a revisar preview antes del envio
+- `{{show_url}}` usa la URL publica del bolo, no la ficha interna de admin
+- La vista previa de `Cuenta > Correo` funciona incluso si aun no existe ningun bolo, usando un ejemplo interno
 - `Plataforma > Correo` permite configurar avisos globales como nuevos registros
 - El sistema no usa todavia un SMTP distinto por cuenta
 
@@ -219,6 +224,13 @@ La importacion:
 - La carga de coordenadas se hace por lotes cortos desde `Actualizar puntos`
 - Una vez calculadas, las coordenadas quedan guardadas en la base de datos para que la vista vuelva a abrir rapido
 
+## Resumen publico de bolo
+
+- Cada bolo genera automaticamente una URL publica propia
+- Esa URL se usa como `show_url` en correos y plantillas
+- El resumen publico muestra informacion operativa del bolo sin exponer la ficha interna
+- Incluye estado, horarios, contacto, notas visibles y resumen de ruta o vuelo
+
 ## Accesos compartidos
 
 - `Accesos` permite crear enlaces por token sin login
@@ -227,10 +239,13 @@ La importacion:
   - gira
 - La parte publica soporta:
   - visualizacion de bolos
+  - mini calendario mensual filtrado por token
   - alertas segun visibilidad
   - documentos visibles
   - chat por secciones visibles
   - creacion/edicion/borrado segun permisos del rol
+- La parte interna y publica de accesos usa avatares visuales por iniciales
+- La portada publica del token combina cabecera operativa, resumen rapido y mini calendario con filtro por dia
 
 ## Tests
 
@@ -264,6 +279,7 @@ Implementado:
 - `Cuenta > PDF y branding` con persistencia y efecto real en roadmap PDF
 - `Cuenta > Preferencias` con valores por defecto para nuevos bolos
 - `Cuenta > Correo` con `Hoja de ruta` externa y `Alerta operativa`
+- preview de correos en `Cuenta > Correo` con restauracion de plantillas por defecto
 - `Plataforma > Usuarios` con cambio de rol global y activacion/desactivacion
 - `Plataforma > Correo` para avisos globales de registro
 - `Plataforma > Ajustes` con idioma por defecto de plataforma
@@ -272,6 +288,7 @@ Implementado:
 - calculo de ruta por carretera en la ficha del bolo con mapa embebido, distancia, tiempo y enlace
 - datos manuales de vuelo para `avion` y resumen logistico de viaje en el PDF
 - vista `Ver mapa` en bolos con sincronizacion de coordenadas por ciudad y carga por lotes
+- URL publica propia por bolo para compartir resumen seguro fuera del panel
 - infraestructura base de idioma `es/en` con traduccion aplicada a la mayoria de la UI operativa y publica
 - cierre efectivo automatico de bolos pasados en la presentacion de estado
 

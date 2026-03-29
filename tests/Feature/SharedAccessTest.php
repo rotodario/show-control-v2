@@ -75,6 +75,52 @@ class SharedAccessTest extends TestCase
         $response->assertSee('Bolo compartido');
     }
 
+    public function test_public_shared_access_index_displays_mini_calendar_and_can_filter_by_day(): void
+    {
+        $tour = Tour::create([
+            'owner_id' => $owner = User::factory()->create()->id,
+            'name' => 'Gira compartida',
+            'color' => '#2563EB',
+        ]);
+
+        $show12 = Show::create([
+            'owner_id' => $owner,
+            'tour_id' => $tour->id,
+            'date' => '2026-06-12',
+            'city' => 'Madrid',
+            'name' => 'Bolo 12',
+            'status' => 'confirmed',
+        ]);
+
+        $show18 = Show::create([
+            'owner_id' => $owner,
+            'tour_id' => $tour->id,
+            'date' => '2026-06-18',
+            'city' => 'Sevilla',
+            'name' => 'Bolo 18',
+            'status' => 'confirmed',
+        ]);
+
+        $grant = SharedAccess::create([
+            'label' => 'Acceso PM',
+            'role' => 'project_manager',
+            'tour_id' => $tour->id,
+            'created_by' => $owner,
+        ]);
+
+        $response = $this->get(route('public-access.index', [
+            'token' => $grant->token,
+            'month' => '2026-06',
+            'date' => '2026-06-12',
+        ]));
+
+        $response->assertOk();
+        $response->assertSee('Bolo 12');
+        $response->assertSee(route('public-access.shows.show', [$grant->token, $show12]), false);
+        $response->assertDontSee(route('public-access.shows.show', [$grant->token, $show18]), false);
+        $response->assertSee(__('ui.calendar'));
+    }
+
     public function test_public_shared_access_cannot_view_show_from_other_tour(): void
     {
         $allowedTour = Tour::create([

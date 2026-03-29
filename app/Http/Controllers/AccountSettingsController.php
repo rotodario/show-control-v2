@@ -10,12 +10,16 @@ use App\Models\UserAlertSetting;
 use App\Models\UserMailSetting;
 use App\Models\UserPreference;
 use App\Models\UserPdfSetting;
+use App\Models\Show;
+use App\Support\ShowMailNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class AccountSettingsController extends Controller
 {
+    private const MAIL_RESET_TYPES = ['roadmap', 'alert'];
+
     public function profile(Request $request): View
     {
         return view('account.profile', [
@@ -78,27 +82,62 @@ class AccountSettingsController extends Controller
         ]);
     }
 
-    public function mail(Request $request): View
+    public function mail(Request $request, ShowMailNotificationService $showMailNotificationService): View
     {
-        $settings = $request->user()?->mailSettings()->first();
+        $user = $request->user();
+        $settings = $user?->mailSettings()->first();
+        $defaults = $this->defaultMailTemplates($user);
 
         if (! $settings) {
             $settings = new UserMailSetting([
                 'notifications_enabled' => false,
                 'alert_notifications_enabled' => false,
-                'from_name' => $request->user()?->name,
-                'subject_template' => 'Hoja de ruta: {{show_name}} - {{show_date}}',
-                'body_template' => "Hola,\n\nAdjuntamos la hoja de ruta del bolo {{show_name}} para el {{show_date}} en {{show_city}}.\nVenue: {{show_venue}}\nEstado: {{show_status}}\nModo de viaje: {{travel_mode}}\nTiempo estimado: {{travel_duration}}\nDistancia: {{travel_distance}}\nContacto: {{contact_name}} / {{contact_phone}} / {{contact_email}}\n\n{{signature}}",
-                'signature' => $request->user()?->name,
-                'alert_subject_template' => 'Alerta de bolo: {{show_name}} ({{alert_count}} pendientes)',
-                'alert_body_template' => "Hola,\n\nHay {{alert_count}} alertas pendientes en el bolo {{show_name}} del {{show_date}} en {{show_city}}.\nVenue: {{show_venue}}\n\n{{alert_lines}}\n\nContacto: {{contact_name}} / {{contact_phone}} / {{contact_email}}\n\n{{signature}}",
+                'from_name' => $user?->name,
+                'subject_template' => $defaults['roadmap']['subject'],
+                'body_template' => $defaults['roadmap']['body'],
+                'signature' => $user?->name,
+                'alert_subject_template' => $defaults['alert']['subject'],
+                'alert_body_template' => $defaults['alert']['body'],
             ]);
         }
 
+        $previewShow = $user?->shows()->latest('date')->first() ?? new Show([
+            'owner_id' => $user?->id,
+            'public_summary_token' => 'preview-show',
+            'date' => now()->addDays(14),
+            'city' => __('ui.mail_preview_example_city'),
+            'venue' => __('ui.mail_preview_example_venue'),
+            'travel_origin' => __('ui.mail_preview_example_origin'),
+            'travel_mode' => 'van',
+            'name' => __('ui.mail_preview_example_show'),
+            'status' => 'confirmed',
+            'contact_name' => $user?->name ?: 'Show Control',
+            'contact_phone' => '+34 600 000 000',
+            'contact_email' => $user?->email ?: 'noreply@example.com',
+        ]);
+
+        $previewTravelRoute = [
+            'duration_text' => '2 h 15 min',
+            'distance_text' => '185 km',
+        ];
+
+        $previewAlerts = [
+            [
+                'title' => __('ui.mail_preview_example_alert_title'),
+                'message' => __('ui.mail_preview_example_alert_message'),
+                'severity' => 'warning',
+            ],
+        ];
+
         return view('account.mail', [
-            'user' => $request->user(),
+            'user' => $user,
             'settings' => $settings,
             'accountSection' => 'mail',
+            'previewShow' => $previewShow,
+            'previewAlerts' => $previewAlerts,
+            'roadmapPreview' => $showMailNotificationService->roadmapPreview($previewShow, $user, $previewTravelRoute, $previewAlerts, $settings),
+            'alertPreview' => $showMailNotificationService->alertPreview($previewShow, $user, $previewAlerts, $settings),
+            'mailTemplateDefaults' => $defaults,
         ]);
     }
 
@@ -116,13 +155,45 @@ class AccountSettingsController extends Controller
 
     public function updateMail(UpdateUserMailSettingsRequest $request): RedirectResponse
     {
-        UserMailSetting::query()->updateOrCreate(
-            ['user_id' => $request->user()->id],
-            $request->validated(),
-        );
+        $payload = $request->validated();
+        $resetType = $request->string('reset_template')->toString();
+
+        if (in_array($resetType, self::MAIL_RESET_TYPES, true)) {
+            $defaults = $this->defaultMailTemplates($request->user());
+
+            if ($resetType === 'roadmap') {
+                $payload['subject_template'] = $defaults['roadmap']['subject'];
+                $payload['body_template'] = $defaults['roadmap']['body'];
+            }
+
+            if ($resetType === 'alert') {
+                $payload['alert_subject_template'] = $defaults['alert']['subject'];
+                $payload['alert_body_template'] = $defaults['alert']['body'];
+            }
+        }
+
+        UserMailSetting::query()->updateOrCreate(['user_id' => $request->user()->id], $payload);
 
         return redirect()
             ->route('account.mail')
-            ->with('status', 'Correo operativo actualizado.');
+            ->with('status', in_array($resetType, self::MAIL_RESET_TYPES, true)
+                ? __('ui.account_mail_template_restored')
+                : __('ui.account_mail_saved'));
+    }
+
+    private function defaultMailTemplates(?\App\Models\User $user): array
+    {
+        $signature = $user?->name ?: 'Show Control';
+
+        return [
+            'roadmap' => [
+                'subject' => __('ui.mail_default_roadmap_subject'),
+                'body' => str_replace('{{signature}}', $signature, __('ui.mail_default_roadmap_body')),
+            ],
+            'alert' => [
+                'subject' => __('ui.mail_default_alert_subject'),
+                'body' => str_replace('{{signature}}', $signature, __('ui.mail_default_alert_body')),
+            ],
+        ];
     }
 }

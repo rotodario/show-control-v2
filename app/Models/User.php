@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -111,5 +112,13 @@ class User extends Authenticatable
     public function showMessageReads(): HasMany
     {
         return $this->hasMany(ShowMessageRead::class);
+    }
+
+    public function avatarInitials(): string
+    {
+        $source = preg_replace('/\s+/', '', trim((string) $this->name)) ?: '';
+        $initials = Str::upper(Str::substr($source, 0, 2));
+
+        return $initials !== '' ? $initials : 'SC';
     }
 }

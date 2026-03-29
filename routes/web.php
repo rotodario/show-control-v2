@@ -8,6 +8,7 @@ use App\Http\Controllers\PlatformMailController;
 use App\Http\Controllers\PlatformSettingsController;
 use App\Http\Controllers\PlatformUserController;
 use App\Http\Controllers\PlatformToolController;
+use App\Http\Controllers\PublicShowController;
 use App\Http\Controllers\PublicSharedAccessController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ShowController;
@@ -28,6 +29,7 @@ Route::get('/', function () {
 Route::get('/install', [InstallController::class, 'index'])->name('install.index');
 Route::post('/install', [InstallController::class, 'store'])->name('install.store');
 
+Route::get('/show/{token}', [PublicShowController::class, 'show'])->name('public-shows.show');
 Route::get('/shared/{token}', [PublicSharedAccessController::class, 'index'])->name('public-access.index');
 Route::post('/shared/{token}/shows', [PublicSharedAccessController::class, 'storeShow'])->name('public-access.shows.store');
 Route::get('/shared/{token}/shows/{show}', [PublicSharedAccessController::class, 'show'])->name('public-access.shows.show');
@@ -80,6 +82,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/shows-map/sync', [ShowController::class, 'syncMap'])->name('shows.map.sync');
         Route::resource('shows', ShowController::class);
         Route::put('/shows/{show}/preview-route', [ShowController::class, 'previewRoute'])->name('shows.preview-route');
+        Route::get('/shows/{show}/mail', [ShowController::class, 'mail'])->name('shows.mail');
+        Route::post('/shows/{show}/mail', [ShowController::class, 'sendMail'])->name('shows.mail.send');
         Route::post('/shows/{show}/send-roadmap-mail', [ShowController::class, 'sendRoadmapMail'])->name('shows.send-roadmap-mail');
         Route::post('/shows/{show}/send-alert-mail', [ShowController::class, 'sendAlertMail'])->name('shows.send-alert-mail');
         Route::get('/shows/{show}/pdf', [ShowController::class, 'pdf'])->name('shows.pdf');

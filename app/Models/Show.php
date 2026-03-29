@@ -8,10 +8,20 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Str;
 
 class Show extends Model
 {
     use HasFactory;
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $show): void {
+            if (blank($show->public_summary_token)) {
+                $show->public_summary_token = self::generatePublicSummaryToken();
+            }
+        });
+    }
 
     public const STATUS_OPTIONS = [
         'tentative' => 'Tentativo',
@@ -100,6 +110,11 @@ class Show extends Model
         return self::statusDotClasses($this->currentStatus($today));
     }
 
+    public function publicSummaryUrl(): string
+    {
+        return route('public-shows.show', $this->public_summary_token);
+    }
+
     protected $fillable = [
         'owner_id',
         'external_source',
@@ -110,6 +125,7 @@ class Show extends Model
         'city',
         'city_latitude',
         'city_longitude',
+        'public_summary_token',
         'venue',
         'travel_origin',
         'travel_mode',
@@ -190,5 +206,14 @@ class Show extends Model
     public function messageReads(): HasMany
     {
         return $this->hasMany(ShowMessageRead::class);
+    }
+
+    private static function generatePublicSummaryToken(): string
+    {
+        do {
+            $token = Str::lower(Str::random(32));
+        } while (self::query()->where('public_summary_token', $token)->exists());
+
+        return $token;
     }
 }

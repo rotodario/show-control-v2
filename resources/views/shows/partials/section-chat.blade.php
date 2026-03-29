@@ -12,24 +12,31 @@
     <div class="mt-4 space-y-3">
         @forelse ($messages as $message)
             <article class="rounded-2xl border p-4 {{ $unreadMessageIds->contains($message->id) ? 'border-sky-300 bg-sky-50/60 ring-1 ring-sky-200' : 'border-slate-200 bg-white' }}">
-                <div class="space-y-3 text-sm leading-6 text-slate-700 [&_p]:my-0 [&_strong]:font-semibold [&_strong]:text-slate-900 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_code]:rounded-md [&_code]:bg-slate-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-[0.95em] [&_a]:font-medium [&_a]:text-sky-700 [&_a]:underline">
-                    {!! \Illuminate\Support\Str::markdown($message->message, [
-                        'html_input' => 'strip',
-                        'allow_unsafe_links' => false,
-                    ]) !!}
-                </div>
-                <div class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold uppercase tracking-[0.16em]" style="color: {{ $message->accentColor() }}">
-                    <span>{{ $message->authorDisplayName() }}</span>
-                    @if ($message->authorRoleLabel())
-                        <span>&middot;</span>
-                        <span>{{ $message->authorRoleLabel() }}</span>
-                    @endif
-                    <span>&middot;</span>
-                    <span>{{ $message->created_at->format('d/m/Y H:i') }}</span>
-                    @if ($unreadMessageIds->contains($message->id))
-                        <span>&middot;</span>
-                        <span class="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-bold tracking-[0.18em] text-sky-700">{{ __('ui.new') }}</span>
-                    @endif
+                <div class="flex items-start gap-4">
+                    <div class="shrink-0 text-white shadow-sm" style="display:flex;width:52px;height:52px;min-width:52px;min-height:52px;border-radius:9999px;align-items:center;justify-content:center;background-color: {{ $message->accentColor() }};font-size:18px;font-weight:700;line-height:1;">
+                        {{ $message->authorInitials() }}
+                    </div>
+                    <div class="min-w-0 flex-1">
+                        <div class="space-y-3 text-sm leading-6 text-slate-700 [&_p]:my-0 [&_strong]:font-semibold [&_strong]:text-slate-900 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_code]:rounded-md [&_code]:bg-slate-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-[0.95em] [&_a]:font-medium [&_a]:text-sky-700 [&_a]:underline">
+                            {!! \Illuminate\Support\Str::markdown($message->message, [
+                                'html_input' => 'strip',
+                                'allow_unsafe_links' => false,
+                            ]) !!}
+                        </div>
+                        <div class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs font-semibold uppercase tracking-[0.16em]" style="color: {{ $message->accentColor() }}">
+                            <span>{{ $message->authorDisplayName() }}</span>
+                            @if ($message->authorRoleLabel())
+                                <span>&middot;</span>
+                                <span>{{ $message->authorRoleLabel() }}</span>
+                            @endif
+                            <span>&middot;</span>
+                            <span>{{ $message->created_at->format('d/m/Y H:i') }}</span>
+                            @if ($unreadMessageIds->contains($message->id))
+                                <span>&middot;</span>
+                                <span class="rounded-full bg-sky-100 px-2 py-0.5 text-[10px] font-bold tracking-[0.18em] text-sky-700">{{ __('ui.new') }}</span>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </article>
         @empty

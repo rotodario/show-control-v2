@@ -61,13 +61,20 @@
                 </section>
 
                 <section class="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm">
-                    <h3 class="text-lg font-semibold text-slate-900">{{ __('ui.roadmap_template_title') }}</h3>
-                    <p class="mt-2 text-sm text-slate-500">
-                        {{ __('ui.available_variables') }}:
-                        @verbatim
-                            <code>{{show_name}}</code>, <code>{{show_date}}</code>, <code>{{show_city}}</code>, <code>{{show_venue}}</code>, <code>{{show_status}}</code>, <code>{{travel_mode}}</code>, <code>{{travel_duration}}</code>, <code>{{travel_distance}}</code>, <code>{{contact_name}}</code>, <code>{{contact_phone}}</code>, <code>{{contact_email}}</code>, <code>{{signature}}</code>.
-                        @endverbatim
-                    </p>
+                    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                        <div>
+                            <h3 class="text-lg font-semibold text-slate-900">{{ __('ui.roadmap_template_title') }}</h3>
+                            <p class="mt-2 text-sm text-slate-500">
+                                {{ __('ui.available_variables') }}:
+                                @verbatim
+                                    <code>{{show_name}}</code>, <code>{{show_date}}</code>, <code>{{show_city}}</code>, <code>{{show_venue}}</code>, <code>{{show_status}}</code>, <code>{{show_url}}</code>, <code>{{travel_mode}}</code>, <code>{{travel_duration}}</code>, <code>{{travel_distance}}</code>, <code>{{contact_name}}</code>, <code>{{contact_phone}}</code>, <code>{{contact_email}}</code>, <code>{{signature}}</code>.
+                                @endverbatim
+                            </p>
+                        </div>
+                        <button type="submit" name="reset_template" value="roadmap" class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+                            {{ __('ui.restore_default_template') }}
+                        </button>
+                    </div>
 
                     <div class="mt-6 grid gap-5">
                         <div>
@@ -122,16 +129,115 @@
                         </div>
 
                         <div class="md:col-span-2">
-                            <label for="alert_body_template" class="text-sm font-semibold text-slate-900">{{ __('ui.alert_body') }}</label>
-                            <textarea id="alert_body_template" name="alert_body_template" rows="8" class="mt-2 block w-full rounded-2xl border-slate-300 shadow-sm focus:border-slate-400 focus:ring-slate-400">{{ old('alert_body_template', $settings->alert_body_template) }}</textarea>
-                            <p class="mt-2 text-xs text-slate-500">
-                                {{ __('ui.available_variables') }}:
-                                @verbatim
-                                    <code>{{show_name}}</code>, <code>{{show_date}}</code>, <code>{{show_city}}</code>, <code>{{show_venue}}</code>, <code>{{alert_count}}</code>, <code>{{alert_lines}}</code>, <code>{{contact_name}}</code>, <code>{{contact_phone}}</code>, <code>{{contact_email}}</code>, <code>{{signature}}</code>.
-                                @endverbatim
-                            </p>
-                            <x-input-error class="mt-2" :messages="$errors->get('alert_body_template')" />
+                            <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                <div class="flex-1">
+                                    <label for="alert_body_template" class="text-sm font-semibold text-slate-900">{{ __('ui.alert_body') }}</label>
+                                    <textarea id="alert_body_template" name="alert_body_template" rows="8" class="mt-2 block w-full rounded-2xl border-slate-300 shadow-sm focus:border-slate-400 focus:ring-slate-400">{{ old('alert_body_template', $settings->alert_body_template) }}</textarea>
+                                    <p class="mt-2 text-xs text-slate-500">
+                                        {{ __('ui.available_variables') }}:
+                                        @verbatim
+                                            <code>{{show_name}}</code>, <code>{{show_date}}</code>, <code>{{show_city}}</code>, <code>{{show_venue}}</code>, <code>{{show_status}}</code>, <code>{{show_url}}</code>, <code>{{travel_mode}}</code>, <code>{{alert_count}}</code>, <code>{{alert_lines}}</code>, <code>{{contact_name}}</code>, <code>{{contact_phone}}</code>, <code>{{contact_email}}</code>, <code>{{signature}}</code>.
+                                        @endverbatim
+                                    </p>
+                                    <x-input-error class="mt-2" :messages="$errors->get('alert_body_template')" />
+                                </div>
+                                <button type="submit" name="reset_template" value="alert" class="inline-flex items-center justify-center rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">
+                                    {{ __('ui.restore_default_template') }}
+                                </button>
+                            </div>
                         </div>
+                    </div>
+                </section>
+
+                <section class="space-y-4">
+                    <div>
+                        <h3 class="text-lg font-semibold text-slate-900">{{ __('ui.mail_preview_title') }}</h3>
+                        <p class="mt-1 text-sm text-slate-500">
+                            {{ __('ui.mail_preview_reference', [
+                                'show' => $previewShow->name,
+                                'date' => $previewShow->date?->format('d/m/Y') ?: '-',
+                                'city' => $previewShow->city ?: '-',
+                            ]) }}
+                        </p>
+                    </div>
+
+                    <div class="grid gap-6 xl:grid-cols-2">
+                        <section class="rounded-[2rem] border border-emerald-200 bg-emerald-50/40 p-6 shadow-sm">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <h4 class="text-lg font-semibold text-slate-900">{{ __('ui.send_roadmap') }}</h4>
+                                    <p class="text-sm text-slate-500">{{ __('ui.mail_preview_help') }}</p>
+                                </div>
+                                <span class="rounded-full px-3 py-1 text-xs font-medium {{ $roadmapPreview['enabled'] ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
+                                    {{ $roadmapPreview['enabled'] ? __('ui.enabled') : __('ui.disabled') }}
+                                </span>
+                            </div>
+
+                            <div class="mt-6 space-y-4">
+                                <div class="rounded-2xl bg-slate-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.to') }}</p>
+                                    <p class="mt-2 text-sm text-slate-700">{{ $roadmapPreview['to'] ? implode(', ', $roadmapPreview['to']) : __('ui.no_recipients_configured') }}</p>
+                                </div>
+                                <div class="rounded-2xl bg-slate-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.cc') }}</p>
+                                    <p class="mt-2 text-sm text-slate-700">{{ $roadmapPreview['cc'] ? implode(', ', $roadmapPreview['cc']) : '-' }}</p>
+                                </div>
+                                <div class="rounded-2xl bg-slate-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.subject') }}</p>
+                                    <p class="mt-2 text-sm font-medium text-slate-900">{{ $roadmapPreview['subject'] }}</p>
+                                </div>
+                                <div class="rounded-2xl bg-slate-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.attachment') }}</p>
+                                    <p class="mt-2 text-sm text-slate-700">{{ $roadmapPreview['attachment_name'] }}</p>
+                                </div>
+                                <div class="rounded-2xl bg-slate-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.body') }}</p>
+                                    <div class="mt-2 whitespace-pre-line text-sm leading-6 text-slate-700">{{ $roadmapPreview['body'] }}</div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="rounded-[2rem] border border-amber-200 bg-amber-50/40 p-6 shadow-sm">
+                            <div class="flex items-center justify-between gap-3">
+                                <div>
+                                    <h4 class="text-lg font-semibold text-slate-900">{{ __('ui.send_alert') }}</h4>
+                                    <p class="text-sm text-slate-500">{{ __('ui.mail_preview_help') }}</p>
+                                </div>
+                                <span class="rounded-full px-3 py-1 text-xs font-medium {{ $alertPreview['enabled'] ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700' }}">
+                                    {{ $alertPreview['enabled'] ? __('ui.enabled') : __('ui.disabled') }}
+                                </span>
+                            </div>
+
+                            <div class="mt-6 space-y-4">
+                                <div class="rounded-2xl bg-slate-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.to') }}</p>
+                                    <p class="mt-2 text-sm text-slate-700">{{ $alertPreview['to'] ? implode(', ', $alertPreview['to']) : __('ui.no_recipients_configured') }}</p>
+                                </div>
+                                <div class="rounded-2xl bg-slate-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.cc') }}</p>
+                                    <p class="mt-2 text-sm text-slate-700">{{ $alertPreview['cc'] ? implode(', ', $alertPreview['cc']) : '-' }}</p>
+                                </div>
+                                <div class="rounded-2xl bg-slate-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.subject') }}</p>
+                                    <p class="mt-2 text-sm font-medium text-slate-900">{{ $alertPreview['subject'] }}</p>
+                                </div>
+                                <div class="rounded-2xl bg-amber-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">{{ __('ui.alerts') }}</p>
+                                    <div class="mt-2 space-y-2">
+                                        @foreach ($previewAlerts as $alert)
+                                            <div class="rounded-xl border border-amber-200 bg-white px-3 py-3 text-sm text-slate-700">
+                                                <p class="font-semibold text-slate-900">{{ $alert['title'] }}</p>
+                                                <p class="mt-1">{{ $alert['message'] }}</p>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                                <div class="rounded-2xl bg-slate-50 p-4">
+                                    <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">{{ __('ui.body') }}</p>
+                                    <div class="mt-2 whitespace-pre-line text-sm leading-6 text-slate-700">{{ $alertPreview['body'] }}</div>
+                                </div>
+                            </div>
+                        </section>
                     </div>
                 </section>
 

@@ -30,6 +30,7 @@ class PublicSharedAccessController extends Controller
 
     public function index(
         string $token,
+        Request $request,
         SharedAccessService $sharedAccessService,
         ShowAlertService $showAlertService,
         ShowMessageReadService $showMessageReadService
@@ -38,7 +39,40 @@ class PublicSharedAccessController extends Controller
         $grant = $sharedAccessService->resolveActiveGrant($token);
         abort_if(! $grant, 404);
 
-        $shows = $sharedAccessService->visibleShowsQuery($grant)->with('sectionMessages')->paginate(20);
+        $month = $request->string('month')->toString();
+        $selectedDateInput = $request->string('date')->toString();
+        $currentMonth = $this->resolveMonth($month);
+        $selectedDate = $this->resolveSelectedDate($selectedDateInput, $currentMonth);
+        $calendarStart = $currentMonth->copy()->startOfMonth()->startOfWeek(Carbon::MONDAY);
+        $calendarEnd = $currentMonth->copy()->endOfMonth()->endOfWeek(Carbon::SUNDAY);
+
+        $calendarShows = $sharedAccessService->visibleShowsQuery($grant)
+            ->whereBetween('date', [$calendarStart->toDateString(), $calendarEnd->toDateString()])
+            ->get();
+
+        $showsByDate = $calendarShows->groupBy(fn (Show $show) => $show->date->toDateString());
+        $calendarDays = collect();
+        $cursor = $calendarStart->copy();
+
+        while ($cursor->lte($calendarEnd)) {
+            $dateKey = $cursor->toDateString();
+            $calendarDays->push([
+                'date' => $cursor->copy(),
+                'shows' => $showsByDate->get($dateKey, collect()),
+                'isCurrentMonth' => $cursor->month === $currentMonth->month,
+                'isToday' => $cursor->isToday(),
+                'isSelected' => $cursor->isSameDay($selectedDate),
+            ]);
+
+            $cursor->addDay();
+        }
+
+        $shows = $sharedAccessService->visibleShowsQuery($grant)
+            ->with('sectionMessages')
+            ->when($selectedDateInput !== '', fn ($query) => $query->whereDate('date', $selectedDate->toDateString()))
+            ->paginate(20)
+            ->withQueryString();
+
         $permissions = $sharedAccessService->permissions($grant);
         $visibility = $sharedAccessService->sectionVisibility($grant);
         $visibleChatSections = collect(array_keys(\App\Models\ShowSectionMessage::SECTIONS))
@@ -54,6 +88,21 @@ class PublicSharedAccessController extends Controller
             'visibility' => $visibility,
             'permissions' => $permissions,
             'statusOptions' => Show::translatedStatusOptions(),
+            'calendarDays' => $calendarDays,
+            'currentMonth' => $currentMonth,
+            'selectedDate' => $selectedDate,
+            'selectedDateInput' => $selectedDateInput,
+            'previousMonth' => $currentMonth->copy()->subMonth()->format('Y-m'),
+            'nextMonth' => $currentMonth->copy()->addMonth()->format('Y-m'),
+            'weekdays' => [
+                __('ui.weekday_mon'),
+                __('ui.weekday_tue'),
+                __('ui.weekday_wed'),
+                __('ui.weekday_thu'),
+                __('ui.weekday_fri'),
+                __('ui.weekday_sat'),
+                __('ui.weekday_sun'),
+            ],
             'tours' => $grant->tour_id
                 ? collect()
                 : Tour::query()->ownedBy($grant->ownerId())->orderBy('name')->get(),
@@ -364,5 +413,31 @@ class PublicSharedAccessController extends Controller
         }
 
         return $value;
+    }
+
+    private function resolveMonth(string $month): Carbon
+    {
+        if ($month !== '') {
+            try {
+                return Carbon::createFromFormat('Y-m', $month)->startOfMonth();
+            } catch (\Throwable) {
+            }
+        }
+
+        return now()->startOfMonth();
+    }
+
+    private function resolveSelectedDate(string $date, Carbon $fallbackMonth): Carbon
+    {
+        if ($date !== '') {
+            try {
+                return Carbon::createFromFormat('Y-m-d', $date)->startOfDay();
+            } catch (\Throwable) {
+            }
+        }
+
+        return $fallbackMonth->copy()->isCurrentMonth()
+            ? now()->startOfDay()
+            : $fallbackMonth->copy()->startOfMonth();
     }
 }

@@ -318,6 +318,60 @@ class ShowController extends Controller
                 : __('ui.roadmap_mail_not_sent'));
     }
 
+    public function mail(
+        Request $request,
+        Show $show,
+        OpenStreetMapRouteService $openStreetMapRouteService,
+        ShowMailNotificationService $showMailNotificationService,
+        ShowAlertService $showAlertService
+    ): View
+    {
+        $this->ensureOwnedShow($show);
+
+        $travelRoute = $openStreetMapRouteService->routeForShow($show);
+        $alerts = $showAlertService->alertsForShow($show, user: $request->user());
+
+        return view('shows.mail', [
+            'show' => $show,
+            'travelRoute' => $travelRoute,
+            'alerts' => $alerts,
+            'roadmapPreview' => $showMailNotificationService->roadmapPreview($show, $request->user(), $travelRoute, $alerts),
+            'alertPreview' => $showMailNotificationService->alertPreview($show, $request->user(), $alerts),
+        ]);
+    }
+
+    public function sendMail(
+        Request $request,
+        Show $show,
+        OpenStreetMapRouteService $openStreetMapRouteService,
+        ShowMailNotificationService $showMailNotificationService,
+        ShowAlertService $showAlertService
+    ): RedirectResponse
+    {
+        $this->ensureOwnedShow($show);
+
+        $validated = $request->validate([
+            'mail_type' => ['required', 'in:roadmap,alert'],
+        ]);
+
+        $travelRoute = $openStreetMapRouteService->routeForShow($show);
+        $alerts = $showAlertService->alertsForShow($show, user: $request->user());
+
+        if ($validated['mail_type'] === 'roadmap') {
+            $sent = $showMailNotificationService->sendRoadmapForShow($show, $request->user(), $travelRoute, $alerts);
+
+            return redirect()
+                ->route('shows.show', $show)
+                ->with('status', $sent ? __('ui.roadmap_mail_sent') : __('ui.roadmap_mail_not_sent'));
+        }
+
+        $sent = $showMailNotificationService->sendAlertForShow($show, $request->user(), $alerts);
+
+        return redirect()
+            ->route('shows.show', $show)
+            ->with('status', $sent ? __('ui.alert_mail_sent') : __('ui.alert_mail_not_sent'));
+    }
+
     public function sendAlertMail(
         Request $request,
         Show $show,

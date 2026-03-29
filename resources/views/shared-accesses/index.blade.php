@@ -57,17 +57,24 @@
                             <article class="rounded-2xl border border-slate-200 p-4 dark:border-slate-700">
                                 <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                                     <div class="min-w-0">
-                                        <div class="flex flex-wrap items-center gap-2">
-                                            <p class="text-base font-semibold text-slate-900 dark:text-slate-100">{{ $sharedAccess->label ?: __('ui.no_label') }}</p>
-                                            <span class="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">{{ $roles[$sharedAccess->role] ?? $sharedAccess->role }}</span>
-                                            <span class="rounded-full {{ $sharedAccess->isRevoked() ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700' }} px-3 py-1 text-xs font-semibold">
-                                                {{ $sharedAccess->isRevoked() ? __('ui.revoked') : __('ui.active') }}
-                                            </span>
+                                        <div class="flex items-start gap-4">
+                                            <div class="shrink-0 text-white shadow-sm" style="display:flex;width:52px;height:52px;min-width:52px;min-height:52px;border-radius:9999px;align-items:center;justify-content:center;background-color:#0f172a;font-size:18px;font-weight:700;line-height:1;">
+                                                {{ $sharedAccess->avatarInitials() }}
+                                            </div>
+                                            <div class="min-w-0">
+                                                <div class="flex flex-wrap items-center gap-2">
+                                                    <p class="text-base font-semibold text-slate-900 dark:text-slate-100">{{ $sharedAccess->label ?: __('ui.no_label') }}</p>
+                                                    <span class="rounded-full bg-sky-100 px-3 py-1 text-xs font-semibold text-sky-700">{{ $roles[$sharedAccess->role] ?? $sharedAccess->role }}</span>
+                                                    <span class="rounded-full {{ $sharedAccess->isRevoked() ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700' }} px-3 py-1 text-xs font-semibold">
+                                                        {{ $sharedAccess->isRevoked() ? __('ui.revoked') : __('ui.active') }}
+                                                    </span>
+                                                </div>
+                                                <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+                                                    {{ $sharedAccess->tour?->name ?: __('ui.all_tours') }} &middot; {{ __('ui.created_by_name', ['name' => $sharedAccess->creator?->name ?: __('ui.system')]) }}
+                                                </p>
+                                                <p class="mt-2 break-all text-xs text-slate-400 dark:text-slate-500">{{ route('public-access.index', $sharedAccess->token) }}</p>
+                                            </div>
                                         </div>
-                                        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
-                                            {{ $sharedAccess->tour?->name ?: __('ui.all_tours') }} &middot; {{ __('ui.created_by_name', ['name' => $sharedAccess->creator?->name ?: __('ui.system')]) }}
-                                        </p>
-                                        <p class="mt-2 break-all text-xs text-slate-400 dark:text-slate-500">{{ route('public-access.index', $sharedAccess->token) }}</p>
                                     </div>
                                     <div class="flex flex-col gap-2 sm:flex-row">
                                         @if (! $sharedAccess->isRevoked())

@@ -34,7 +34,7 @@ class ShowAlertMail extends Mailable
             'travel_mode' => \App\Models\Show::translatedTravelModeOptions()[$this->show->travel_mode ?: 'van'] ?? ($this->show->travel_mode ?: '-'),
             'travel_duration' => $this->travelRoute['duration_text'] ?? '-',
             'travel_distance' => $this->travelRoute['distance_text'] ?? '-',
-            'show_url' => route('shows.show', $this->show),
+            'show_url' => $this->show->publicSummaryUrl(),
             'contact_name' => $this->show->contact_name ?: '-',
             'contact_phone' => $this->show->contact_phone ?: '-',
             'contact_email' => $this->show->contact_email ?: '-',
@@ -44,13 +44,13 @@ class ShowAlertMail extends Mailable
         $subject = MailTemplateRenderer::render(
             $this->settings->subject_template,
             $context,
-            'Aviso de bolo: {{show_name}} - {{show_date}}'
+            __('ui.mail_default_roadmap_subject')
         );
 
         $body = MailTemplateRenderer::render(
             $this->settings->body_template,
             $context,
-            "Hola,\n\nTe enviamos el resumen del bolo {{show_name}} para el {{show_date}} en {{show_city}}.\nVenue: {{show_venue}}\nEstado: {{show_status}}\nModo de viaje: {{travel_mode}}\nTiempo estimado: {{travel_duration}}\nDistancia: {{travel_distance}}\n\nFicha del bolo: {{show_url}}\n\n{{signature}}"
+            __('ui.mail_default_roadmap_body')
         );
 
         $mail = $this->subject($subject)

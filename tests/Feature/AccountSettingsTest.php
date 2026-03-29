@@ -7,6 +7,7 @@ use App\Models\UserMailSetting;
 use App\Models\UserPreference;
 use App\Models\UserPdfSetting;
 use App\Models\User;
+use App\Models\Show;
 use Database\Seeders\RolesAndPermissionsSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -264,6 +265,67 @@ class AccountSettingsTest extends TestCase
             ->assertSee('reply@example.com')
             ->assertSee('one@example.com')
             ->assertSee('Aviso {{show_name}}', false);
+    }
+
+    public function test_mail_settings_page_displays_mail_previews(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+
+        UserMailSetting::create([
+            'user_id' => $user->id,
+            'notifications_enabled' => true,
+            'from_name' => 'Produccion Roto',
+            'recipients' => 'one@example.com',
+            'subject_template' => 'Aviso {{show_name}}',
+            'body_template' => 'Hola {{show_name}}',
+            'signature' => 'Equipo de produccion',
+            'alert_notifications_enabled' => true,
+            'alert_recipients' => 'alerts@example.com',
+            'alert_subject_template' => 'Alerta {{show_name}}',
+            'alert_body_template' => 'Alertas {{alert_count}}',
+        ]);
+
+        Show::create([
+            'owner_id' => $user->id,
+            'date' => now()->addDays(10)->toDateString(),
+            'city' => 'Madrid',
+            'venue' => 'La Riviera',
+            'name' => 'Bolo preview',
+            'status' => 'confirmed',
+        ]);
+
+        $this->actingAs($user)->get(route('account.mail'))
+            ->assertOk()
+            ->assertSee(__('ui.mail_preview_title'))
+            ->assertSee('Bolo preview')
+            ->assertSee('Aviso Bolo preview');
+    }
+
+    public function test_admin_can_restore_default_roadmap_template(): void
+    {
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+
+        $response = $this->actingAs($user)->put(route('account.mail.update'), [
+            'notifications_enabled' => '1',
+            'from_name' => 'Produccion Roto',
+            'subject_template' => 'Custom',
+            'body_template' => 'Body custom',
+            'signature' => 'Firma custom',
+            'reset_template' => 'roadmap',
+        ]);
+
+        $response->assertRedirect(route('account.mail'));
+
+        $this->assertDatabaseHas('user_mail_settings', [
+            'user_id' => $user->id,
+            'subject_template' => __('ui.mail_default_roadmap_subject'),
+        ]);
     }
 
     public function test_account_index_redirects_to_profile(): void

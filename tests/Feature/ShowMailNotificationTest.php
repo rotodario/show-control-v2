@@ -76,6 +76,55 @@ class ShowMailNotificationTest extends TestCase
         });
     }
 
+    public function test_roadmap_mail_renders_public_show_url_placeholder(): void
+    {
+        Http::fake([
+            'https://nominatim.openstreetmap.org/*' => Http::response([
+                ['lat' => '40.4168', 'lon' => '-3.7038'],
+            ], 200),
+            'https://router.project-osrm.org/*' => Http::response([
+                'routes' => [[
+                    'duration' => 7200,
+                    'distance' => 620000,
+                    'geometry' => [
+                        'type' => 'LineString',
+                        'coordinates' => [[-3.7038, 40.4168], [2.1734, 41.3851]],
+                    ],
+                ]],
+            ], 200),
+        ]);
+
+        $this->seed(RolesAndPermissionsSeeder::class);
+
+        $user = User::factory()->create();
+        $user->assignRole('admin');
+
+        $settings = UserMailSetting::create([
+            'user_id' => $user->id,
+            'notifications_enabled' => true,
+            'recipients' => 'road@example.com',
+            'subject_template' => 'Hoja {{show_name}}',
+            'body_template' => 'Resumen {{show_url}}',
+            'signature' => 'Produccion',
+        ]);
+
+        $show = Show::create([
+            'owner_id' => $user->id,
+            'date' => '2026-06-22',
+            'city' => 'Barcelona',
+            'venue' => 'Palau Sant Jordi',
+            'travel_origin' => 'Madrid',
+            'travel_mode' => 'van',
+            'name' => 'Bolo Barcelona',
+            'status' => 'confirmed',
+        ]);
+
+        $mail = new ShowRoadmapMail($show, $user, $settings, app(\App\Support\OpenStreetMapRouteService::class)->routeForShow($show));
+        $html = $mail->render();
+
+        $this->assertStringContainsString(route('public-shows.show', $show->public_summary_token), $html);
+    }
+
     public function test_admin_can_send_show_alert_mail_to_configured_recipients(): void
     {
         Mail::fake();
